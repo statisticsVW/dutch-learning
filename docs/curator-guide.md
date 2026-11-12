@@ -55,6 +55,7 @@ Fix the Card it names, commit again, and the check reruns. What the common messa
 | `must be de or het (in lower case)`               | Fix the spelling of the article.                                                               |
 | `only nouns have an article`                      | Remove the `article` line, or set `pos: noun` if it really is a noun.                          |
 | `says het, but Wiktionary says de` (or the other way) | The article is almost certainly wrong: change it to what Wiktionary says.                  |
+| `Wiktionary says de for "apple" (het appel means: …)` | The same spelling is two different nouns. Use the article for the meaning in your Card's `english`. |
 | `is not in the Wiktionary snapshot`               | Check the spelling. If it is right, the word may be missing from Wiktionary's lists (often long compound words): pick a simpler word, or ask whoever maintains the code to look at it. |
 | `without "de" in front`                           | Move the article out of `dutch` and into `article`.                                            |
 | `is already in this Pack as Card …`               | The same word is in the Pack twice: delete one Card, or merge the meanings into one Card's `english` list. |

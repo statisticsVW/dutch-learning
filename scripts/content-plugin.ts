@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import type { Plugin } from 'vite';
 import { checkContent, formatErrors } from '../src/content/check.ts';
-import { PACKS_DIR, SNAPSHOT_PATH, readArticleSnapshot, readPackFiles } from './read-pack-files.ts';
+import { PACKS_DIR, SNAPSHOT_PATH, readArticleSnapshot, readPackFiles } from './read-content.ts';
 
 const VIRTUAL_ID = 'virtual:packs';
 const RESOLVED_ID = '\0' + VIRTUAL_ID;

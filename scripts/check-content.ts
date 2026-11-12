@@ -1,6 +1,6 @@
 // Run with `npm run check:content`. Prints a plain-language list of problems in the Pack files.
 import { checkContent, formatErrors } from '../src/content/check.ts';
-import { readArticleSnapshot, readPackFiles } from './read-pack-files.ts';
+import { readArticleSnapshot, readPackFiles } from './read-content.ts';
 
 const result = checkContent(readPackFiles(), readArticleSnapshot());
 if (result.ok) {

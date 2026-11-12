@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { checkContent as check, type ArticleSnapshot } from './check';
+import { checkContent, type ArticleSnapshot } from './check';
 
 // A tiny stand-in for the committed Wiktionary snapshot.
 const wiktionary: ArticleSnapshot = {
-  appel: ['de'],
+  appel: { de: ['apple (fruit or tree)'], het: ['appeal (act of imploring)', 'roll call'] },
   boek: ['het'],
   naam: ['de'],
   pad: ['de', 'het'],
   water: ['het'],
 };
 
-const checkContent = (files: Parameters<typeof check>[0]) => check(files, wiktionary);
+const checkWithTestSnapshot = (files: Parameters<typeof checkContent>[0]) => checkContent(files, wiktionary);
 
 /** A one-file Pack whose cards are given as YAML list lines. */
 function pack(name: string, ...cards: string[]) {
@@ -53,7 +53,7 @@ function errorsOf(result: ReturnType<typeof checkContent>): string[] {
 
 describe('checkContent', () => {
   it('turns valid Pack files into Packs with their Cards', () => {
-    const result = checkContent([hello, food]);
+    const result = checkWithTestSnapshot([hello, food]);
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
@@ -66,14 +66,14 @@ describe('checkContent', () => {
   });
 
   it('explains a YAML syntax error in plain language, naming the file', () => {
-    const errors = errorsOf(checkContent([{ path: 'content/packs/bad.yaml', text: 'title: [oops\ncards:' }]));
+    const errors = errorsOf(checkWithTestSnapshot([{ path: 'content/packs/bad.yaml', text: 'title: [oops\ncards:' }]));
 
     expect(errors).toHaveLength(1);
     expect(errors[0]).toMatch(/^content\/packs\/bad\.yaml: this file is not valid YAML/);
   });
 
   it('reports a missing title and a missing card list', () => {
-    const errors = errorsOf(checkContent([{ path: 'content/packs/empty.yaml', text: 'cards: []' }]));
+    const errors = errorsOf(checkWithTestSnapshot([{ path: 'content/packs/empty.yaml', text: 'cards: []' }]));
 
     expect(errors).toEqual([
       'content/packs/empty.yaml: the Pack needs a "title" (text).',
@@ -83,7 +83,7 @@ describe('checkContent', () => {
 
   it('points to the exact Card when a field is missing or the wrong kind', () => {
     const errors = errorsOf(
-      checkContent([
+      checkWithTestSnapshot([
         {
           path: 'content/packs/animals.yaml',
           text: `
@@ -137,7 +137,7 @@ cards:
 `,
     };
 
-    const errors = errorsOf(checkContent([hello, copy]));
+    const errors = errorsOf(checkWithTestSnapshot([hello, copy]));
 
     expect(errors).toEqual([
       'content/packs/greetings.yaml: Card id "hello-01" is used more than once (also in content/packs/hello.yaml). Every Card id must be unique.',
@@ -146,7 +146,7 @@ cards:
   });
 
   it('rejects two Pack files that would get the same Pack id', () => {
-    const errors = errorsOf(checkContent([food, { ...food, path: 'content/packs/food.yml', text: food.text.replace('food-01', 'food-02') }]));
+    const errors = errorsOf(checkWithTestSnapshot([food, { ...food, path: 'content/packs/food.yml', text: food.text.replace('food-01', 'food-02') }]));
 
     expect(errors).toEqual([
       'content/packs/food.yml: another Pack file (content/packs/food.yaml) has the same name. Rename one of them.',
@@ -154,19 +154,19 @@ cards:
   });
 
   it('fails when there are no Pack files at all', () => {
-    expect(errorsOf(checkContent([]))).toEqual(['No Pack files were found in content/packs.']);
+    expect(errorsOf(checkWithTestSnapshot([]))).toEqual(['No Pack files were found in content/packs.']);
   });
 
   describe('articles', () => {
     it('requires an article on every noun', () => {
-      const errors = errorsOf(checkContent([pack('food', '{ id: food-01, dutch: appel, english: apple, pos: noun }')]));
+      const errors = errorsOf(checkWithTestSnapshot([pack('food', '{ id: food-01, dutch: appel, english: apple, pos: noun }')]));
 
       expect(errors).toEqual(['content/packs/food.yaml, Card food-01: "appel" is a noun, so it needs an "article": de or het.']);
     });
 
     it('only accepts de or het', () => {
       const errors = errorsOf(
-        checkContent([
+        checkWithTestSnapshot([
           pack(
             'food',
             '{ id: food-01, dutch: appel, english: apple, pos: noun, article: the }',
@@ -182,7 +182,7 @@ cards:
     });
 
     it('rejects an article on a Card that is not a noun', () => {
-      const errors = errorsOf(checkContent([pack('hello', '{ id: hello-01, dutch: hallo, english: hello, pos: interjection, article: de }')]));
+      const errors = errorsOf(checkWithTestSnapshot([pack('hello', '{ id: hello-01, dutch: hallo, english: hello, pos: interjection, article: de }')]));
 
       expect(errors).toEqual([
         'content/packs/hello.yaml, Card hello-01: only nouns have an article. Remove "article", or change "pos" to noun.',
@@ -191,7 +191,7 @@ cards:
 
     it('flags an article that disagrees with Wiktionary, showing both values', () => {
       const errors = errorsOf(
-        checkContent([
+        checkWithTestSnapshot([
           pack(
             'food',
             '{ id: food-07, dutch: appel, english: apple, pos: noun, article: het }',
@@ -201,13 +201,37 @@ cards:
       );
 
       expect(errors).toEqual([
-        'content/packs/food.yaml, Card food-07: "appel" says het, but Wiktionary says de.',
+        'content/packs/food.yaml, Card food-07: "appel" says het, but Wiktionary says de for "apple" (het appel means: appeal; roll call).',
         'content/packs/food.yaml, Card food-08: "boek" says de, but Wiktionary says het.',
       ]);
     });
 
+    it('accepts het for the other meaning of a word with two nouns, and either when the meaning is unclear', () => {
+      const result = checkWithTestSnapshot([
+        pack('army', '{ id: army-01, dutch: appel, english: roll call, pos: noun, article: het }'),
+        pack('law', '{ id: law-01, dutch: appel, english: [to appeal, an appeal], pos: noun, article: het }'),
+        pack('misc', '{ id: misc-01, dutch: appel, english: something else, pos: noun, article: de }'),
+      ]);
+
+      expect(result.ok ? [] : result.errors).toEqual([]);
+    });
+
+    it('stores the Dutch word without stray spaces', () => {
+      const result = checkWithTestSnapshot([pack('food', '{ id: food-01, dutch: " appel ", english: apple, pos: noun, article: de }')]);
+
+      expect(result.ok && result.packs[0].cards[0].dutch).toBe('appel');
+    });
+
+    it('spots de or het in the Dutch word even when the article is missing', () => {
+      const errors = errorsOf(checkWithTestSnapshot([pack('food', '{ id: food-01, dutch: het boek, english: book, pos: noun }')]));
+
+      expect(errors).toEqual([
+        'content/packs/food.yaml, Card food-01: write "boek" in "dutch" without "het" in front; the article goes in "article".',
+      ]);
+    });
+
     it('accepts either article for a noun Wiktionary lists with both', () => {
-      const result = checkContent([
+      const result = checkWithTestSnapshot([
         pack(
           'misc',
           '{ id: misc-01, dutch: pad, english: toad, pos: noun, article: de }',
@@ -219,13 +243,13 @@ cards:
     });
 
     it('matches Wiktionary regardless of capital letters and spaces around the word', () => {
-      const result = checkContent([pack('food', '{ id: food-01, dutch: " Appel ", english: apple, pos: noun, article: de }')]);
+      const result = checkWithTestSnapshot([pack('food', '{ id: food-01, dutch: " Appel ", english: apple, pos: noun, article: de }')]);
 
       expect(result.ok ? [] : result.errors).toEqual([]);
     });
 
     it('explains a noun that is not in the Wiktionary snapshot', () => {
-      const errors = errorsOf(checkContent([pack('food', '{ id: food-01, dutch: apel, english: apple, pos: noun, article: de }')]));
+      const errors = errorsOf(checkWithTestSnapshot([pack('food', '{ id: food-01, dutch: apel, english: apple, pos: noun, article: de }')]));
 
       expect(errors).toEqual([
         'content/packs/food.yaml, Card food-01: "apel" is not in the Wiktionary snapshot, so its article cannot be checked. Check the spelling (Dutch nouns are written in lower case, without de or het in front).',
@@ -233,7 +257,7 @@ cards:
     });
 
     it('spots de or het written into the Dutch word itself', () => {
-      const errors = errorsOf(checkContent([pack('food', '{ id: food-01, dutch: de appel, english: apple, pos: noun, article: de }')]));
+      const errors = errorsOf(checkWithTestSnapshot([pack('food', '{ id: food-01, dutch: de appel, english: apple, pos: noun, article: de }')]));
 
       expect(errors).toEqual([
         'content/packs/food.yaml, Card food-01: write "appel" in "dutch" without "de" in front; the article goes in "article".',
@@ -244,7 +268,7 @@ cards:
   describe('duplicate Cards', () => {
     it('rejects the same word twice in one Pack, naming both Cards', () => {
       const errors = errorsOf(
-        checkContent([
+        checkWithTestSnapshot([
           pack(
             'food',
             '{ id: food-01, dutch: appel, english: apple, pos: noun, article: de }',
@@ -260,7 +284,7 @@ cards:
     });
 
     it('allows the same word in two different Packs', () => {
-      const result = checkContent([
+      const result = checkWithTestSnapshot([
         pack('food', '{ id: food-01, dutch: water, english: water, pos: noun, article: het }'),
         pack('drinks', '{ id: drinks-01, dutch: water, english: water, pos: noun, article: het }'),
       ]);

@@ -21,7 +21,19 @@ public MediaWiki API:
 - Dutch masculine nouns, Dutch feminine nouns, Dutch common-gender nouns → **de**
 - Dutch neuter nouns → **het**
 
-A word found in both groups (for example *pad*: de pad "toad", het pad "path") allows either article.
+About 800 words are in both groups. For those the script reads the word's page and drops senses
+labelled obsolete, archaic, dated or regional (het *hond* was an old unit of area, so *hond* is just
+**de**). If both articles still have current senses, the entry lists each article's English meanings:
+
+```json
+"appel": {"de": ["apple (fruit or tree)"], "het": ["appeal (…)", "roll call"]}
+```
+
+The check then fails a Card only when its English clearly matches the other noun, e.g. *appel* /
+"apple" / het. If the meaning matches neither, either article is accepted.
+
+Senses are parsed by `scripts/wiktionary-senses.ts` (tested in `wiktionary-senses.test.ts`).
+
 The file is written one noun per line, sorted, so a rebuild shows as a readable diff. Commit the
 result together with any Pack changes that need it. Rebuilding takes a few minutes, because the
 script pauses between requests to stay within Wiktionary's rate limits.
