@@ -13,12 +13,17 @@ export const PARTS_OF_SPEECH = [
 
 export type PartOfSpeech = (typeof PARTS_OF_SPEECH)[number];
 
+export const ARTICLES = ['de', 'het'] as const;
+
+export type Article = (typeof ARTICLES)[number];
+
 export type Card = {
   id: string;
   dutch: string;
   english: string[];
   pos: PartOfSpeech;
-  article?: string;
+  /** Present exactly when pos is "noun". */
+  article?: Article;
 };
 
 export type Pack = {

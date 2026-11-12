@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import type { Plugin } from 'vite';
 import { checkContent, formatErrors } from '../src/content/check.ts';
-import { PACKS_DIR, readPackFiles } from './read-pack-files.ts';
+import { PACKS_DIR, SNAPSHOT_PATH, readArticleSnapshot, readPackFiles } from './read-pack-files.ts';
 
 const VIRTUAL_ID = 'virtual:packs';
 const RESOLVED_ID = '\0' + VIRTUAL_ID;
@@ -25,7 +25,8 @@ export function contentPlugin(): Plugin {
       this.addWatchFile(join(root, PACKS_DIR));
       const files = readPackFiles(root);
       files.forEach((f) => this.addWatchFile(join(root, f.path)));
-      const result = checkContent(files);
+      this.addWatchFile(join(root, SNAPSHOT_PATH));
+      const result = checkContent(files, readArticleSnapshot(root));
       if (!result.ok) {
         this.error(formatErrors(result.errors));
       }

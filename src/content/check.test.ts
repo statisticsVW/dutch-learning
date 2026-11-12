@@ -1,5 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { checkContent } from './check';
+import { checkContent as check, type ArticleSnapshot } from './check';
+
+// A tiny stand-in for the committed Wiktionary snapshot.
+const wiktionary: ArticleSnapshot = {
+  appel: ['de'],
+  boek: ['het'],
+  naam: ['de'],
+  pad: ['de', 'het'],
+  water: ['het'],
+};
+
+const checkContent = (files: Parameters<typeof check>[0]) => check(files, wiktionary);
+
+/** A one-file Pack whose cards are given as YAML list lines. */
+function pack(name: string, ...cards: string[]) {
+  return { path: `content/packs/${name}.yaml`, text: `title: ${name}\ncards:\n${cards.map((c) => `  - ${c}\n`).join('')}` };
+}
 
 const hello = {
   path: 'content/packs/hello.yaml',
@@ -76,9 +92,11 @@ cards:
   - id: animals-01
     english: dog
     pos: noun
+    article: de
   - dutch: kat
     english: cat
     pos: noun
+    article: de
   - id: animals-03
     dutch: vis
     english: []
@@ -137,5 +155,117 @@ cards:
 
   it('fails when there are no Pack files at all', () => {
     expect(errorsOf(checkContent([]))).toEqual(['No Pack files were found in content/packs.']);
+  });
+
+  describe('articles', () => {
+    it('requires an article on every noun', () => {
+      const errors = errorsOf(checkContent([pack('food', '{ id: food-01, dutch: appel, english: apple, pos: noun }')]));
+
+      expect(errors).toEqual(['content/packs/food.yaml, Card food-01: "appel" is a noun, so it needs an "article": de or het.']);
+    });
+
+    it('only accepts de or het', () => {
+      const errors = errorsOf(
+        checkContent([
+          pack(
+            'food',
+            '{ id: food-01, dutch: appel, english: apple, pos: noun, article: the }',
+            '{ id: food-02, dutch: water, english: water, pos: noun, article: Het }',
+          ),
+        ]),
+      );
+
+      expect(errors).toEqual([
+        'content/packs/food.yaml, Card food-01: "article" is "the", but it must be de or het (in lower case).',
+        'content/packs/food.yaml, Card food-02: "article" is "Het", but it must be de or het (in lower case).',
+      ]);
+    });
+
+    it('rejects an article on a Card that is not a noun', () => {
+      const errors = errorsOf(checkContent([pack('hello', '{ id: hello-01, dutch: hallo, english: hello, pos: interjection, article: de }')]));
+
+      expect(errors).toEqual([
+        'content/packs/hello.yaml, Card hello-01: only nouns have an article. Remove "article", or change "pos" to noun.',
+      ]);
+    });
+
+    it('flags an article that disagrees with Wiktionary, showing both values', () => {
+      const errors = errorsOf(
+        checkContent([
+          pack(
+            'food',
+            '{ id: food-07, dutch: appel, english: apple, pos: noun, article: het }',
+            '{ id: food-08, dutch: boek, english: book, pos: noun, article: de }',
+          ),
+        ]),
+      );
+
+      expect(errors).toEqual([
+        'content/packs/food.yaml, Card food-07: "appel" says het, but Wiktionary says de.',
+        'content/packs/food.yaml, Card food-08: "boek" says de, but Wiktionary says het.',
+      ]);
+    });
+
+    it('accepts either article for a noun Wiktionary lists with both', () => {
+      const result = checkContent([
+        pack(
+          'misc',
+          '{ id: misc-01, dutch: pad, english: toad, pos: noun, article: de }',
+          '{ id: misc-02, dutch: pad, english: path, pos: noun, article: het }',
+        ),
+      ]);
+
+      expect(result.ok ? [] : result.errors).toEqual([]);
+    });
+
+    it('matches Wiktionary regardless of capital letters and spaces around the word', () => {
+      const result = checkContent([pack('food', '{ id: food-01, dutch: " Appel ", english: apple, pos: noun, article: de }')]);
+
+      expect(result.ok ? [] : result.errors).toEqual([]);
+    });
+
+    it('explains a noun that is not in the Wiktionary snapshot', () => {
+      const errors = errorsOf(checkContent([pack('food', '{ id: food-01, dutch: apel, english: apple, pos: noun, article: de }')]));
+
+      expect(errors).toEqual([
+        'content/packs/food.yaml, Card food-01: "apel" is not in the Wiktionary snapshot, so its article cannot be checked. Check the spelling (Dutch nouns are written in lower case, without de or het in front).',
+      ]);
+    });
+
+    it('spots de or het written into the Dutch word itself', () => {
+      const errors = errorsOf(checkContent([pack('food', '{ id: food-01, dutch: de appel, english: apple, pos: noun, article: de }')]));
+
+      expect(errors).toEqual([
+        'content/packs/food.yaml, Card food-01: write "appel" in "dutch" without "de" in front; the article goes in "article".',
+      ]);
+    });
+  });
+
+  describe('duplicate Cards', () => {
+    it('rejects the same word twice in one Pack, naming both Cards', () => {
+      const errors = errorsOf(
+        checkContent([
+          pack(
+            'food',
+            '{ id: food-01, dutch: appel, english: apple, pos: noun, article: de }',
+            '{ id: food-02, dutch: water, english: water, pos: noun, article: het }',
+            '{ id: food-03, dutch: Appel, english: an apple, pos: noun, article: de }',
+          ),
+        ]),
+      );
+
+      expect(errors).toEqual([
+        'content/packs/food.yaml, Card food-03: "Appel" is already in this Pack as Card food-01. Remove one of them, or put both meanings in one Card.',
+      ]);
+    });
+
+    it('allows the same word in two different Packs', () => {
+      const result = checkContent([
+        pack('food', '{ id: food-01, dutch: water, english: water, pos: noun, article: het }'),
+        pack('drinks', '{ id: drinks-01, dutch: water, english: water, pos: noun, article: het }'),
+      ]);
+
+      expect(result.ok ? [] : result.errors).toEqual([]);
+    });
   });
 });
