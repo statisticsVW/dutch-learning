@@ -4,6 +4,7 @@ import { App } from './App';
 import type { Pack } from './content/types';
 import { createMemoryProgressStore } from './adapters/progress-store';
 import { createFakeClock } from './adapters/clock';
+import { createFakeSpeech } from './adapters/speech';
 
 const animals: Pack = {
   id: 'animals',
@@ -158,5 +159,63 @@ describe('an installed app brought back from the background', () => {
     setVisibility('visible');
 
     expect(shownDutch()).toBe(asked);
+  });
+});
+
+describe('listening', () => {
+  function renderWithSpeech(available: boolean) {
+    const speech = createFakeSpeech(available);
+    render(
+      <App packs={[animals]} store={createMemoryProgressStore()} clock={createFakeClock(new Date('2026-01-01T10:00:00Z'))} random={() => 0.5} speech={speech} />,
+    );
+    return speech;
+  }
+
+  /** Answers the first prompt wrongly and the next four rightly, so the first Card comes back. */
+  function slipOnceThenAnswerFour() {
+    fireEvent.click(screen.getByRole('button', { name: /Animals/ }));
+    const first = meaningOf(shownDutch());
+    const wrong = ['dog', 'cat', 'horse', 'fish', 'bird', 'cow'].find((o) => o !== first && screen.queryByRole('button', { name: o }))!;
+    fireEvent.click(screen.getByRole('button', { name: wrong }));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    for (let i = 0; i < 4; i++) {
+      fireEvent.click(screen.getByRole('button', { name: meaningOf(shownDutch()) }));
+      fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    }
+    return first;
+  }
+
+  it('without a Dutch voice: a quiet note, and every prompt is written', async () => {
+    renderWithSpeech(false);
+
+    expect(await screen.findByText(/Audio isn’t available on this device/)).toBeTruthy();
+    slipOnceThenAnswerFour();
+    expect(shownDutch()).toBe('de hond');
+    expect(screen.queryByRole('button', { name: /Hear it/ })).toBeNull();
+  });
+
+  it('with a Dutch voice: any Card can be heard, and the tap that starts practice unlocks speech', async () => {
+    const speech = renderWithSpeech(true);
+    await act(async () => {});
+    expect(screen.queryByText(/Audio isn’t available/)).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: /Animals/ }));
+    expect(speech.unlocks).toBe(1);
+    fireEvent.click(screen.getByRole('button', { name: 'Hear it in Dutch' }));
+    expect(speech.spoken).toEqual(['de hond']);
+  });
+
+  it('with a Dutch voice: a Card met before may be asked by ear, and plays by itself', async () => {
+    const speech = renderWithSpeech(true);
+    await act(async () => {});
+    const first = slipOnceThenAnswerFour();
+
+    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Listen: what does it mean?');
+    expect(speech.spoken).toEqual(['de hond']);
+    fireEvent.click(screen.getByRole('button', { name: 'Play again' }));
+    expect(speech.spoken).toEqual(['de hond', 'de hond']);
+    fireEvent.click(screen.getByRole('button', { name: first }));
+    expect(screen.getByText('Goed zo!')).toBeTruthy();
+    expect(shownDutch()).toBe('de hond');
   });
 });

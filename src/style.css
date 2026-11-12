@@ -159,6 +159,36 @@ button.quiet {
 .feedback.correct {
   color: var(--good);
 }
+/* Cognate moment, False-friend warning and "did you know" Facts. */
+.note {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--line);
+  border-left-width: 0.375rem;
+  text-align: center;
+}
+.note.cognate {
+  border-left-color: var(--good);
+  color: var(--good);
+}
+.note.false-friend {
+  border-left-color: var(--accent);
+}
+.fact {
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.fact h3 {
+  margin: 0 0 0.25rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+.fact p {
+  margin: 0;
+}
 .install-screen {
   line-height: 1.5;
 }
@@ -401,4 +431,28 @@ button.quiet {
 .notice {
   /* Lines up with <main>: 32rem wide, 1rem padding, never touching the screen edge. */
   margin: 1rem max(1rem, calc((100% - 30rem) / 2)) 0;
+}
+.dutch-line {
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.hear {
+  min-width: 44px;
+  padding: 0.5rem;
+  line-height: 1;
+}
+.prompt-listen {
+  font-size: 1.25rem;
+  margin: 0;
+}
+.play {
+  font-size: 1.25rem;
+  padding: 1rem;
+}
+.audio-note {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: -0.5rem 0 1rem;
 }

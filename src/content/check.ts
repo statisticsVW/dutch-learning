@@ -1,7 +1,20 @@
 // The content check: turns the Curator's Pack files into validated content,
 // or into a plain-language list of what needs fixing. Runs at build time.
 import { parse } from 'yaml';
-import { ARTICLES, PARTS_OF_SPEECH, type Article, type Card, type DictionaryEntry, type Pack, type PartOfSpeech, MY_WORDS_PACK_ID } from './types.ts';
+import {
+  ARTICLES,
+  MAX_FACT_LENGTH,
+  MY_WORDS_PACK_ID,
+  PARTS_OF_SPEECH,
+  type Article,
+  type Card,
+  type CardNotes,
+  type DictionaryEntry,
+  type Fact,
+  type FactPlace,
+  type Pack,
+  type PartOfSpeech,
+} from './types.ts';
 
 export type PackFile = { path: string; text: string };
 
@@ -99,8 +112,11 @@ function checkPackFile(file: PackFile, wiktionary: ArticleSnapshot, errors: stri
     return undefined;
   }
 
+  const id = packIdFromPath(file.path);
+  checkKnownFields(data, PACK_FIELDS, 'Pack', fileError);
   const title = data.title;
   if (!isText(title)) fileError('the Pack needs a "title" (text).');
+  const facts = checkPackFacts(data.facts, { kind: 'pack', id }, fileError);
 
   const rawCards = data.cards;
   const cards: Card[] = [];
@@ -117,7 +133,7 @@ function checkPackFile(file: PackFile, wiktionary: ArticleSnapshot, errors: stri
   checkNoDuplicateCards(cards, file.path, { noun: 'Card', place: 'this Pack' }, errors);
 
   if (errors.length > before) return undefined;
-  return { id: packIdFromPath(file.path), title: title as string, cards };
+  return { id, title: title as string, ...(facts.length > 0 && { facts }), cards };
 }
 
 /** How errors name what is checked: a Pack's Card, or a Dictionary entry (not a Card until the Learner adds it). */
@@ -146,12 +162,80 @@ function checkCard(raw: unknown, index: number, path: string, { noun, idExample 
 
   if (article !== undefined && !isText(article)) cardError('"article" must be text.');
 
+  checkKnownFields(raw, CARD_FIELDS, noun, cardError);
+
   if (errors.length > before) return undefined;
   const card: Card = { id: id as string, dutch: (dutch as string).trim(), english: english as string[], pos: pos as PartOfSpeech };
   const checkedArticle = checkArticle(card, article as string | undefined, wiktionary, cardError);
+  const notes = checkCardNotes(card, raw, cardError);
   if (errors.length > before) return undefined;
   if (checkedArticle) card.article = checkedArticle;
-  return card;
+  return { ...card, ...notes };
+}
+
+const CARD_FIELDS = ['id', 'dutch', 'english', 'pos', 'article', 'cognate', 'false-friend', 'fact'];
+const PACK_FIELDS = ['title', 'facts', 'cards'];
+
+/** A misspelt field would silently drop what it holds (a Fact, say), so only known fields are allowed. */
+function checkKnownFields(raw: Record<string, unknown>, known: string[], thing: 'Pack' | Naming['noun'], report: (message: string) => void) {
+  const a = thing === 'entry' ? 'an' : 'a';
+  for (const key of Object.keys(raw)) {
+    if (!known.includes(key)) report(`"${key}" is not ${a} ${thing} field. Check the spelling; ${a} ${thing} has: ${known.join(', ')}.`);
+  }
+}
+
+/** The optional Cognate / False-friend flag and Fact on a Card, without any field that was left out. */
+function checkCardNotes(card: Card, raw: Record<string, unknown>, cardError: (message: string) => void): CardNotes {
+  const notes: CardNotes = {};
+  const { cognate, fact } = raw;
+  const looksLike = raw['false-friend'];
+
+  if (cognate !== undefined && typeof cognate !== 'boolean') cardError('"cognate" must be true, or leave it out.');
+  else if (cognate === true) notes.cognate = true;
+
+  if (looksLike !== undefined && !isText(looksLike)) {
+    cardError('"false-friend" should be the English word it looks like (for brutaal, write: false-friend: brutal).');
+  } else if (isText(looksLike)) {
+    const same = (meaning: string) => meaning.trim().toLowerCase() === looksLike.trim().toLowerCase();
+    if (notes.cognate) cardError('a Card can’t be both a Cognate and a False friend. Keep the one that fits.');
+    else if (card.english.some(same)) {
+      cardError(`"false-friend" says "${card.dutch}" looks like "${looksLike}", but that is also what it means. If it really means the same, write "cognate: true" instead.`);
+    } else notes.falseFriend = { looksLike: looksLike.trim() };
+  }
+
+  if (fact !== undefined) {
+    const problem = factProblem(fact);
+    if (problem) cardError(`"fact" ${problem}.`);
+    else notes.fact = { text: (fact as string).trim(), about: { kind: 'card', id: card.id } };
+  }
+  return notes;
+}
+
+/** A Pack's Facts: a list of short sentences, or a single one. */
+function checkPackFacts(raw: unknown, about: FactPlace, fileError: (message: string) => void): Fact[] {
+  if (raw === undefined) return [];
+  const list = typeof raw === 'string' ? [raw] : raw;
+  if (!Array.isArray(list)) {
+    fileError('"facts" should be a list of short sentences, each on its own line starting with "- ".');
+    return [];
+  }
+  const facts: Fact[] = [];
+  list.forEach((text, index) => {
+    const problem = factProblem(text);
+    if (problem) fileError(`Pack fact #${index + 1} ${problem}.`);
+    else facts.push({ text: (text as string).trim(), about });
+  });
+  return facts;
+}
+
+/** What is wrong with a Fact's text, or undefined when it is fine. */
+function factProblem(text: unknown): string | undefined {
+  // YAML reads "Fun fact: ja means yes." as a field, not as text.
+  if (isRecord(text)) return 'has a colon followed by a space, so put the whole Fact in double quotes: "like: this"';
+  if (!isText(text)) return 'should be one short sentence (text)';
+  const length = text.trim().length;
+  if (length > MAX_FACT_LENGTH) return `is ${length} characters long; keep a Fact short (at most ${MAX_FACT_LENGTH} characters)`;
+  return undefined;
 }
 
 /** Nouns need de or het, agreeing with Wiktionary; other Cards have no article. Returns the valid article. */

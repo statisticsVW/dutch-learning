@@ -1,7 +1,7 @@
 // The learning engine: pure TypeScript, no DOM, storage or audio.
 // One engine is one Burst: created from the content, the Learner's saved progress and a clock.
 import { createEmptyCard, fsrs, Rating, type Card as FsrsCard, type State } from 'ts-fsrs';
-import type { Card, Pack } from '../content/types';
+import type { Card, CardNotes, Fact, Pack } from '../content/types';
 import type { Clock } from '../adapters/clock';
 
 export const NEW_CARDS_PER_GROUP = 5;
@@ -27,8 +27,19 @@ export function emptyProgress(): Progress {
   return { version: 1, cards: {} };
 }
 
-export type Prompt = { kind: 'prompt'; cardId: string; mode: 'recognise'; dutch: string; options: string[] };
-export type GroupDone = { kind: 'group-done'; canDoMore: boolean };
+/** How a prompt asks: recognise (read the Dutch) or listen (hear it); both pick the English meaning. */
+export type PracticeMode = 'recognise' | 'listen';
+/** `dutch` is shown for recognise, and spoken (not shown) for listen. */
+export type Prompt = {
+  kind: 'prompt';
+  cardId: string;
+  mode: PracticeMode;
+  dutch: string;
+  options: string[];
+  /** The Card's Cognate / False-friend flag and Fact, when it has any. */
+  notes?: CardNotes;
+};
+export type GroupDone = { kind: 'group-done'; canDoMore: boolean; /** After new Cards: one of the Pack's Facts, when it has any. */ fact?: Fact };
 export type AnswerResult = { verdict: 'correct' | 'wrong'; correctAnswer: string; progress: Progress };
 export type PackSummary = { id: string; title: string; learned: number; total: number };
 /** Cards due for review, and roughly how many minutes reviewing them all takes. */
@@ -47,11 +58,18 @@ export type Engine = {
   progress(): Progress;
 };
 
-export type EngineDeps = { packs: Pack[]; progress: Progress; clock: Clock; random?: () => number };
+export type EngineDeps = {
+  packs: Pack[];
+  progress: Progress;
+  clock: Clock;
+  random?: () => number;
+  /** Whether the device can speak Dutch. Asked per prompt, since the answer can arrive after the Burst starts. */
+  audioAvailable?: () => boolean;
+};
 
 const scheduler = fsrs({ request_retention: 0.9, enable_fuzz: false, enable_short_term: false });
 
-export function createEngine({ packs, progress: saved, clock, random = Math.random }: EngineDeps): Engine {
+export function createEngine({ packs, progress: saved, clock, random = Math.random, audioAvailable = () => false }: EngineDeps): Engine {
   const progress: Progress = structuredClone(saved);
   const allCards = packs.flatMap((p) => p.cards);
   /** New Cards answered for the first time in this Burst (counts toward the cap). */
@@ -79,6 +97,15 @@ export function createEngine({ packs, progress: saved, clock, random = Math.rand
   };
   const canDoMore = () => newCardsPackId !== undefined && introducedThisBurst < MAX_NEW_CARDS_PER_BURST && unseen(findPack(newCardsPackId)).length > 0;
 
+  /**
+   * A Card is first met written down (recognise). After that, recognise and listen take turns,
+   * so new and weak Cards are both read and heard.
+   */
+  function modeFor(card: Card): PracticeMode {
+    const reps = progress.cards[card.id]?.memory.reps ?? 0;
+    return audioAvailable() && reps % 2 === 1 ? 'listen' : 'recognise';
+  }
+
   function buildPrompt(card: Card): Prompt {
     const answer = meaningOf(card);
     const pack = packs.find((p) => p.cards.includes(card))!;
@@ -89,10 +116,19 @@ export function createEngine({ packs, progress: saved, clock, random = Math.rand
     return {
       kind: 'prompt',
       cardId: card.id,
-      mode: 'recognise',
+      mode: modeFor(card),
       dutch: displayDutch(card),
       options: shuffle([answer, ...distractors], random),
+      ...notesOf(card),
     };
+  }
+
+  /** One of the Pack's Facts, a different one after each group of five new Cards. */
+  function packFact(): Pick<GroupDone, 'fact'> {
+    const pack = newCardsPackId === undefined ? undefined : findPack(newCardsPackId);
+    if (!pack?.facts?.length) return {};
+    const groupsSeen = Math.ceil((pack.cards.length - unseen(pack).length) / NEW_CARDS_PER_GROUP);
+    return { fact: pack.facts[Math.max(0, groupsSeen - 1) % pack.facts.length] };
   }
 
   return {
@@ -120,7 +156,7 @@ export function createEngine({ packs, progress: saved, clock, random = Math.rand
     },
 
     nextPrompt() {
-      if (queue.length === 0) return { kind: 'group-done', canDoMore: canDoMore() };
+      if (queue.length === 0) return { kind: 'group-done', canDoMore: canDoMore(), ...packFact() };
       current ??= buildPrompt(queue[0]);
       return current;
     },
@@ -189,6 +225,12 @@ function fromFsrs(card: FsrsCard, lastCorrect: boolean): CardProgress {
 /** The meaning a recognise prompt asks for: the Card's first English meaning. */
 function meaningOf(card: Card): string {
   return card.english[0];
+}
+
+/** The Card's notes for its prompt, or nothing when it has none. */
+function notesOf({ cognate, falseFriend, fact }: Card): { notes?: CardNotes } {
+  const notes: CardNotes = { ...(cognate && { cognate }), ...(falseFriend && { falseFriend }), ...(fact && { fact }) };
+  return Object.keys(notes).length > 0 ? { notes } : {};
 }
 
 /** The Dutch as shown to the Learner: nouns always carry their article. */

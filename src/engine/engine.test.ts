@@ -31,8 +31,13 @@ const animals: Pack = {
   ],
 };
 
-function engineWith(packs: Pack[], progress: Progress = emptyProgress(), clock = createFakeClock(new Date('2026-01-01T10:00:00Z'))) {
-  return { engine: createEngine({ packs, progress, clock, random: () => 0.5 }), clock };
+function engineWith(
+  packs: Pack[],
+  progress: Progress = emptyProgress(),
+  clock = createFakeClock(new Date('2026-01-01T10:00:00Z')),
+  audioAvailable = () => false,
+) {
+  return { engine: createEngine({ packs, progress, clock, random: () => 0.5, audioAvailable }), clock };
 }
 
 function expectPrompt(engine: Engine): Prompt {
@@ -295,11 +300,11 @@ describe('progress', () => {
 });
 
 /** Saved progress for a Card that is in review: last answered correctly, with the given memory strength. */
-function reviewed(due: string, stability: number, lastReview = '2025-12-01T10:00:00Z'): CardProgress {
+function reviewed(due: string, stability: number, lastReview = '2025-12-01T10:00:00Z', reps = 2): CardProgress {
   return {
     due: new Date(due).toISOString(),
     lastCorrect: true,
-    memory: { stability, difficulty: 5, scheduledDays: Math.round(stability), learningSteps: 0, reps: 2, lapses: 0, state: 2, lastReview: new Date(lastReview).toISOString() },
+    memory: { stability, difficulty: 5, scheduledDays: Math.round(stability), learningSteps: 0, reps, lapses: 0, state: 2, lastReview: new Date(lastReview).toISOString() },
   };
 }
 
@@ -414,5 +419,131 @@ describe('welcome back', () => {
     engine.startReview();
     answerGroup(engine, [animals]);
     expect(engine.overview().welcomeBack).toBe(true);
+  });
+});
+
+describe('Cognates, False friends and Facts', () => {
+  const fact = (text: string, kind: 'card' | 'pack', id: string) => ({ text, about: { kind, id } });
+
+  it('carries a Card’s notes on its prompt, and leaves them out when it has none', () => {
+    const packs: Pack[] = [
+      {
+        id: 'mix',
+        title: 'Mix',
+        cards: [
+          card('mix-01', 'appel', 'apple', { cognate: true, fact: fact('Appeltaart is apple pie.', 'card', 'mix-01') }),
+          card('mix-02', 'brutaal', 'cheeky', { pos: 'adjective', article: undefined, falseFriend: { looksLike: 'brutal' } }),
+          card('mix-03', 'hond', 'dog'),
+        ],
+      },
+    ];
+    const { engine } = engineWith(packs);
+    engine.startNewCards('mix');
+
+    const notesAsked = [];
+    for (let next = engine.nextPrompt(); next.kind === 'prompt'; next = engine.nextPrompt()) {
+      notesAsked.push(next.notes);
+      engine.answer(correctOption(packs, next));
+    }
+
+    expect(notesAsked).toEqual([{ cognate: true, fact: fact('Appeltaart is apple pie.', 'card', 'mix-01') }, { falseFriend: { looksLike: 'brutal' } }, undefined]);
+  });
+
+  it('offers one of the Pack’s Facts after each group of new Cards, a different one each group', () => {
+    const packs: Pack[] = [{ ...bigPack(10), facts: [fact('First.', 'pack', 'big'), fact('Second.', 'pack', 'big')] }];
+    const { engine } = engineWith(packs);
+
+    const shown = [];
+    for (let i = 0; i < 2; i++) {
+      engine.startNewCards('big');
+      answerGroup(engine, packs);
+      const done = engine.nextPrompt();
+      shown.push(done.kind === 'group-done' ? done.fact?.text : undefined);
+    }
+
+    expect(shown).toEqual(['First.', 'Second.']);
+  });
+
+  it('offers no Pack Fact after a review', () => {
+    const packs: Pack[] = [{ ...animals, facts: [fact('Dutch has many animal sayings.', 'pack', 'animals')] }];
+    const { engine, clock } = engineWith(packs);
+    engine.startNewCards('animals');
+    answerGroup(engine, packs);
+    clock.advance(30 * DAY);
+
+    const later = createEngine({ packs, progress: engine.progress(), clock, random: () => 0.5 });
+    later.startReview();
+    answerGroup(later, packs);
+
+    expect(later.nextPrompt()).toEqual({ kind: 'group-done', canDoMore: false });
+  });
+});
+
+describe('listen mode', () => {
+  const withAudio = (progress: Progress, available = true) =>
+    engineWith([animals], progress, createFakeClock(new Date('2026-01-01T10:00:00Z')), () => available).engine;
+
+  /** The modes of every prompt in the current group, answering each correctly. */
+  function modesOfGroup(engine: Engine): string[] {
+    const modes: string[] = [];
+    for (let next = engine.nextPrompt(); next.kind === 'prompt'; next = engine.nextPrompt()) {
+      modes.push(next.mode);
+      engine.answer(correctOption([animals], next));
+    }
+    return modes;
+  }
+
+  it('a new Card is always first met by recognising it, so the Learner sees it written', () => {
+    const engine = withAudio(emptyProgress());
+
+    engine.startNewCards('animals');
+
+    expect(modesOfGroup(engine)).toEqual(['recognise', 'recognise', 'recognise', 'recognise', 'recognise']);
+  });
+
+  it('a Card met before alternates between listening and recognising', () => {
+    const engine = withAudio(emptyProgress());
+    engine.startNewCards('animals');
+    engine.answer('nonsense'); // hond: wrong, so it comes back in this group
+
+    const modes = modesOfGroup(engine);
+
+    expect(modes).toEqual(['recognise', 'recognise', 'recognise', 'recognise', 'listen']);
+  });
+
+  it('a listen prompt carries the Dutch to speak, and the same four-option choice of meanings', () => {
+    const engine = withAudio(emptyProgress());
+    engine.startNewCards('animals');
+    engine.answer('nonsense');
+    for (const option of ['cat', 'horse', 'fish', 'bird']) engine.answer(option);
+
+    const prompt = expectPrompt(engine);
+
+    expect(prompt).toMatchObject({ mode: 'listen', cardId: 'animals-01', dutch: 'de hond' });
+    expect(prompt.options).toHaveLength(4);
+    expect(prompt.options).toContain('dog');
+  });
+
+  it('reviews mix listening in too', () => {
+    const progress: Progress = {
+      version: 1,
+      cards: {
+        'animals-01': reviewed('2026-01-01T00:00:00Z', 3), // answered twice before
+        'animals-02': reviewed('2026-01-01T00:00:00Z', 2, undefined, 1), // answered once before
+      },
+    };
+    const engine = withAudio(progress);
+
+    engine.startReview();
+
+    expect(modesOfGroup(engine)).toEqual(['listen', 'recognise']);
+  });
+
+  it('never asks to listen when the device has no Dutch voice', () => {
+    const engine = withAudio(emptyProgress(), false);
+    engine.startNewCards('animals');
+    engine.answer('nonsense');
+
+    expect(modesOfGroup(engine)).not.toContain('listen');
   });
 });
