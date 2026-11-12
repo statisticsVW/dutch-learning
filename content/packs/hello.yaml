@@ -1,12 +1,16 @@
 # Pack: Hello & being polite
 # Each Card needs: id (unique, never reuse or change it), dutch, english, pos.
-# Nouns also get an article: de or het. How-to: docs/curator-guide.md
+# Nouns also get an article: de or het. Optional: cognate, false-friend, fact (and facts for the Pack).
+# How-to: docs/curator-guide.md
 title: Hello & being polite
+facts:
+  - Dutch has a friendly "you" (je) and a polite "you" (u). Dank je is for friends; dank u is for strangers and older people.
 cards:
   - id: hello-01
     dutch: hallo
     english: hello
     pos: interjection
+    cognate: true
   - id: hello-02
     dutch: dank je
     english: [thank you, thanks]
@@ -19,8 +23,14 @@ cards:
     dutch: goedemorgen
     english: good morning
     pos: phrase
+    fact: Later in the day it becomes goedemiddag (good afternoon) and goedenavond (good evening).
   - id: hello-05
     dutch: naam
     english: name
     pos: noun
     article: de
+  - id: hello-06
+    dutch: brutaal
+    english: cheeky
+    pos: adjective
+    false-friend: brutal

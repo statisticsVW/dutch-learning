@@ -376,3 +376,146 @@ describe('checkDictionary', () => {
     expect(errorsOfDictionary(check({ path: DICTIONARY_PATH, text: 'entries: [oops' }))[0]).toMatch(/is not valid YAML/);
   });
 });
+
+describe('Cognates, False friends and Facts', () => {
+  it('reads the optional notes on Cards and Facts on the Pack, each Fact knowing where it belongs', () => {
+    const result = checkWithTestSnapshot([
+      {
+        path: 'content/packs/food.yaml',
+        text: `
+title: Food
+facts:
+  - The Dutch eat chocolate sprinkles (hagelslag) on bread.
+cards:
+  - id: food-01
+    dutch: appel
+    english: apple
+    pos: noun
+    article: de
+    cognate: true
+    fact: Apple pie (appeltaart) is a Dutch favourite.
+  - id: food-02
+    dutch: brutaal
+    english: cheeky
+    pos: adjective
+    false-friend: brutal
+  - id: food-03
+    dutch: water
+    english: water
+    pos: noun
+    article: het
+    cognate: false
+`,
+      },
+    ]);
+
+    expect(result.ok ? undefined : result.errors).toBeUndefined();
+    if (!result.ok) return;
+    const [food] = result.packs;
+    expect(food.facts).toEqual([{ text: 'The Dutch eat chocolate sprinkles (hagelslag) on bread.', about: { kind: 'pack', id: 'food' } }]);
+    expect(food.cards[0]).toMatchObject({ cognate: true, fact: { text: 'Apple pie (appeltaart) is a Dutch favourite.', about: { kind: 'card', id: 'food-01' } } });
+    expect(food.cards[1]).toMatchObject({ falseFriend: { looksLike: 'brutal' } });
+    expect(food.cards[2]).toEqual({ id: 'food-03', dutch: 'water', english: ['water'], pos: 'noun', article: 'het' });
+  });
+
+  it('leaves Packs and Cards without notes exactly as before', () => {
+    const result = checkWithTestSnapshot([hello]);
+
+    expect(result.ok && result.packs[0]).toEqual({
+      id: 'hello',
+      title: 'Hello & being polite',
+      cards: [
+        { id: 'hello-01', dutch: 'hallo', english: ['hello'], pos: 'interjection' },
+        { id: 'hello-02', dutch: 'dank je', english: ['thank you', 'thanks'], pos: 'phrase' },
+      ],
+    });
+  });
+
+  it('explains Cognate and False-friend fields written the wrong way', () => {
+    const errors = errorsOf(
+      checkWithTestSnapshot([
+        pack(
+          'words',
+          '{ id: words-01, dutch: appel, english: apple, pos: noun, article: de, cognate: yes }',
+          '{ id: words-02, dutch: brutaal, english: cheeky, pos: adjective, false-friend: [brutal] }',
+          '{ id: words-03, dutch: slim, english: clever, pos: adjective, false-friend: slim, cognate: true }',
+          '{ id: words-04, dutch: water, english: water, pos: noun, article: het, false-friend: Water }',
+        ),
+      ]),
+    );
+
+    expect(errors).toEqual([
+      'content/packs/words.yaml, Card words-01: "cognate" must be true, or leave it out.',
+      'content/packs/words.yaml, Card words-02: "false-friend" should be the English word it looks like (for brutaal, write: false-friend: brutal).',
+      'content/packs/words.yaml, Card words-03: a Card can’t be both a Cognate and a False friend. Keep the one that fits.',
+      'content/packs/words.yaml, Card words-04: "false-friend" says "water" looks like "Water", but that is also what it means. If it really means the same, write "cognate: true" instead.',
+    ]);
+  });
+
+  it('wants each Fact to be one short piece of text', () => {
+    const long = 'Dutch '.repeat(40).trim();
+    const errors = errorsOf(
+      checkWithTestSnapshot([
+        {
+          path: 'content/packs/facts.yaml',
+          text: `
+title: Facts
+facts:
+  - Fine.
+  - ${long}
+  - [not, text]
+cards:
+  - { id: facts-01, dutch: hallo, english: hello, pos: interjection, fact: [one, two] }
+  - { id: facts-02, dutch: ja, english: yes, pos: interjection, fact: ${long} }
+`,
+        },
+        { path: 'content/packs/single.yaml', text: 'title: Single\nfacts: 42\ncards:\n  - { id: single-01, dutch: nee, english: no, pos: interjection }\n' },
+      ]),
+    );
+
+    expect(errors).toEqual([
+      `content/packs/facts.yaml: Pack fact #2 is ${long.length} characters long; keep a Fact short (at most 200 characters).`,
+      'content/packs/facts.yaml: Pack fact #3 should be one short sentence (text).',
+      'content/packs/facts.yaml, Card facts-01: "fact" should be one short sentence (text).',
+      `content/packs/facts.yaml, Card facts-02: "fact" is ${long.length} characters long; keep a Fact short (at most 200 characters).`,
+      'content/packs/single.yaml: "facts" should be a list of short sentences, each on its own line starting with "- ".',
+    ]);
+  });
+
+  it('accepts a single Pack Fact written without a list', () => {
+    const result = checkWithTestSnapshot([{ path: 'content/packs/one.yaml', text: 'title: One\nfacts: Hallo is hello.\ncards:\n  - { id: one-01, dutch: ja, english: yes, pos: interjection }\n' }]);
+
+    expect(result.ok && result.packs[0].facts).toEqual([{ text: 'Hallo is hello.', about: { kind: 'pack', id: 'one' } }]);
+  });
+
+  it('catches misspelt field names, so a note is never silently lost', () => {
+    const errors = errorsOf(
+      checkWithTestSnapshot([
+        {
+          path: 'content/packs/typos.yaml',
+          text: `
+title: Typos
+fact: The Pack field is called facts.
+cards:
+  - { id: typos-01, dutch: brutaal, english: cheeky, pos: adjective, falsefriend: brutal }
+`,
+        },
+      ]),
+    );
+
+    expect(errors).toEqual([
+      'content/packs/typos.yaml: "fact" is not a Pack field. Check the spelling; a Pack has: title, facts, cards.',
+      'content/packs/typos.yaml, Card typos-01: "falsefriend" is not a Card field. Check the spelling; a Card has: id, dutch, english, pos, article, cognate, false-friend, fact.',
+    ]);
+  });
+});
+
+describe('checkDictionary notes', () => {
+  it('names a misspelt field on an entry as an entry field', () => {
+    const result = checkDictionary({ path: 'content/dictionary/dictionary.yaml', text: 'entries:\n  - { id: dict-ja, dutch: ja, english: yes, pos: interjection, cognat: true }\n' }, wiktionary, []);
+
+    expect(result.ok ? [] : result.errors).toEqual([
+      'content/dictionary/dictionary.yaml, entry dict-ja: "cognat" is not an entry field. Check the spelling; an entry has: id, dutch, english, pos, article, cognate, false-friend, fact.',
+    ]);
+  });
+});

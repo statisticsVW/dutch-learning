@@ -416,3 +416,60 @@ describe('welcome back', () => {
     expect(engine.overview().welcomeBack).toBe(true);
   });
 });
+
+describe('Cognates, False friends and Facts', () => {
+  const fact = (text: string, kind: 'card' | 'pack', id: string) => ({ text, about: { kind, id } });
+
+  it('carries a Card’s notes on its prompt, and leaves them out when it has none', () => {
+    const packs: Pack[] = [
+      {
+        id: 'mix',
+        title: 'Mix',
+        cards: [
+          card('mix-01', 'appel', 'apple', { cognate: true, fact: fact('Appeltaart is apple pie.', 'card', 'mix-01') }),
+          card('mix-02', 'brutaal', 'cheeky', { pos: 'adjective', article: undefined, falseFriend: { looksLike: 'brutal' } }),
+          card('mix-03', 'hond', 'dog'),
+        ],
+      },
+    ];
+    const { engine } = engineWith(packs);
+    engine.startNewCards('mix');
+
+    const notesAsked = [];
+    for (let next = engine.nextPrompt(); next.kind === 'prompt'; next = engine.nextPrompt()) {
+      notesAsked.push(next.notes);
+      engine.answer(correctOption(packs, next));
+    }
+
+    expect(notesAsked).toEqual([{ cognate: true, fact: fact('Appeltaart is apple pie.', 'card', 'mix-01') }, { falseFriend: { looksLike: 'brutal' } }, undefined]);
+  });
+
+  it('offers one of the Pack’s Facts after each group of new Cards, a different one each group', () => {
+    const packs: Pack[] = [{ ...bigPack(10), facts: [fact('First.', 'pack', 'big'), fact('Second.', 'pack', 'big')] }];
+    const { engine } = engineWith(packs);
+
+    const shown = [];
+    for (let i = 0; i < 2; i++) {
+      engine.startNewCards('big');
+      answerGroup(engine, packs);
+      const done = engine.nextPrompt();
+      shown.push(done.kind === 'group-done' ? done.fact?.text : undefined);
+    }
+
+    expect(shown).toEqual(['First.', 'Second.']);
+  });
+
+  it('offers no Pack Fact after a review', () => {
+    const packs: Pack[] = [{ ...animals, facts: [fact('Dutch has many animal sayings.', 'pack', 'animals')] }];
+    const { engine, clock } = engineWith(packs);
+    engine.startNewCards('animals');
+    answerGroup(engine, packs);
+    clock.advance(30 * DAY);
+
+    const later = createEngine({ packs, progress: engine.progress(), clock, random: () => 0.5 });
+    later.startReview();
+    answerGroup(later, packs);
+
+    expect(later.nextPrompt()).toEqual({ kind: 'group-done', canDoMore: false });
+  });
+});
