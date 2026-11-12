@@ -1,7 +1,7 @@
-import { join } from 'node:path';
+import { resolve } from 'node:path';
 import type { Plugin } from 'vite';
 import { checkContent, formatErrors } from '../src/content/check.ts';
-import { PACKS_DIR, readPackFiles } from './read-pack-files.ts';
+import { PACKS_DIR, SNAPSHOT_PATH, readArticleSnapshot, readPackFiles } from './read-content.ts';
 
 const VIRTUAL_ID = 'virtual:packs';
 const RESOLVED_ID = '\0' + VIRTUAL_ID;
@@ -20,12 +20,23 @@ export function contentPlugin(): Plugin {
     resolveId(id) {
       return id === VIRTUAL_ID ? RESOLVED_ID : undefined;
     },
+    configureServer(server) {
+      // In dev, re-run the check and reload the page whenever a Pack file or the article snapshot changes.
+      const packsDir = resolve(root, PACKS_DIR);
+      const snapshot = resolve(root, SNAPSHOT_PATH);
+      server.watcher.add([packsDir, snapshot]);
+      const onChange = (file: string) => {
+        const changed = resolve(file);
+        if (!changed.startsWith(packsDir) && changed !== snapshot) return;
+        const mod = server.moduleGraph.getModuleById(RESOLVED_ID);
+        if (mod) server.moduleGraph.invalidateModule(mod);
+        server.ws.send({ type: 'full-reload' });
+      };
+      server.watcher.on('add', onChange).on('change', onChange).on('unlink', onChange);
+    },
     load(id) {
       if (id !== RESOLVED_ID) return undefined;
-      this.addWatchFile(join(root, PACKS_DIR));
-      const files = readPackFiles(root);
-      files.forEach((f) => this.addWatchFile(join(root, f.path)));
-      const result = checkContent(files);
+      const result = checkContent(readPackFiles(root), readArticleSnapshot(root));
       if (!result.ok) {
         this.error(formatErrors(result.errors));
       }

@@ -1,25 +1,28 @@
-import { describe, expect, it } from 'vitest';
-import { render, screen, within } from '@testing-library/preact';
+import { describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, within } from '@testing-library/preact';
 import { PackList } from './PackList';
-import type { Pack } from './content/types';
 
-const packs: Pack[] = [
-  {
-    id: 'hello',
-    title: 'Hello & being polite',
-    cards: [
-      { id: 'hello-01', dutch: 'hallo', english: ['hello'], pos: 'interjection' },
-      { id: 'hello-02', dutch: 'dank je', english: ['thank you'], pos: 'phrase' },
-    ],
-  },
-  { id: 'food', title: 'Food', cards: [{ id: 'food-01', dutch: 'appel', english: ['apple'], pos: 'noun', article: 'de' }] },
+const packs = [
+  { id: 'hello', title: 'Hello & being polite', learned: 2, total: 5 },
+  { id: 'food', title: 'Food', learned: 0, total: 12 },
 ];
 
 describe('PackList', () => {
-  it('lists each Pack with its title and how many Cards it has', () => {
-    render(<PackList packs={packs} />);
+  it('lists each Pack with a progress ring of Cards learned out of Cards in the Pack', () => {
+    render(<PackList packs={packs} onPick={() => {}} />);
 
-    const items = within(screen.getByRole('list', { name: 'Packs' })).getAllByRole('listitem');
-    expect(items.map((item) => item.textContent)).toEqual(['Hello & being polite2 Cards', 'Food1 Card']);
+    const items = within(screen.getByRole('list', { name: 'Packs' })).getAllByRole('button');
+    expect(items.map((b) => b.textContent)).toEqual(['Hello & being polite', 'Food']);
+    expect(screen.getByRole('img', { name: '2 of 5 learned' })).toBeTruthy();
+    expect(screen.getByRole('img', { name: '0 of 12 learned' })).toBeTruthy();
+  });
+
+  it('picks a Pack', () => {
+    const onPick = vi.fn();
+    render(<PackList packs={packs} onPick={onPick} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Food/ }));
+
+    expect(onPick).toHaveBeenCalledWith('food');
   });
 });

@@ -1,12 +1,15 @@
 import { render } from 'preact';
+import packs from 'virtual:packs';
 import { App } from './App';
+import { systemClock } from './adapters/clock';
+import { createLocalProgressStore } from './adapters/progress-store';
 import { InstallGate } from './install/InstallGate';
 import { browserInstallStatus } from './install/installStatus';
 import './style.css';
 
 render(
   <InstallGate installStatus={browserInstallStatus()}>
-    <App />
+    <App packs={packs} store={createLocalProgressStore(localStorage)} clock={systemClock} />
   </InstallGate>,
   document.getElementById('app')!,
 );

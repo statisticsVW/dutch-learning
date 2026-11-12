@@ -1,8 +1,8 @@
 // Run with `npm run check:content`. Prints a plain-language list of problems in the Pack files.
 import { checkContent, formatErrors } from '../src/content/check.ts';
-import { readPackFiles } from './read-pack-files.ts';
+import { readArticleSnapshot, readPackFiles } from './read-content.ts';
 
-const result = checkContent(readPackFiles());
+const result = checkContent(readPackFiles(), readArticleSnapshot());
 if (result.ok) {
   const cards = result.packs.reduce((n, p) => n + p.cards.length, 0);
   console.log(`Content check passed: ${result.packs.length} Pack(s), ${cards} Card(s).`);
