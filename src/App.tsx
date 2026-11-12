@@ -5,6 +5,8 @@ import type { Clock } from './adapters/clock';
 import type { ProgressStore } from './adapters/progress-store';
 import type { MyWordsStore } from './adapters/my-words-store';
 import type { Speak, Speech } from './adapters/speech';
+import type { Share } from './adapters/share';
+import { ShareContext } from './ShareButton';
 import { PackList } from './PackList';
 import { Practice, type Activity } from './Practice';
 import { DictionaryScreen } from './dictionary/DictionaryScreen';
@@ -13,12 +15,21 @@ import { withMyWords } from './dictionary/my-words';
 /** The Dictionary (loaded lazily) and the Learner's Mijn woorden. */
 export type DictionaryDeps = { load: () => Promise<DictionaryEntry[]>; myWords: MyWordsStore };
 
-type Props = { packs: Pack[]; store: ProgressStore; clock: Clock; random?: () => number; dictionary?: DictionaryDeps; speech?: Speech };
+type Props = { packs: Pack[]; store: ProgressStore; clock: Clock; random?: () => number; dictionary?: DictionaryDeps; speech?: Speech; share?: Share };
 
 /** Away from the app for at least this long, coming back starts a new Burst. */
 export const NEW_BURST_AFTER_MINUTES = 30;
 
-export function App({ packs, store, clock, random, dictionary, speech }: Props) {
+export function App(props: Props) {
+  // Word requests and Mistake reports can come from any screen.
+  return (
+    <ShareContext.Provider value={props.share}>
+      <Screens {...props} />
+    </ShareContext.Provider>
+  );
+}
+
+function Screens({ packs, store, clock, random, dictionary, speech }: Props) {
   const audio = useAudio(speech);
   const [myWords, setMyWords] = useState(() => dictionary?.myWords.load() ?? []);
   const allPacks = useMemo(() => withMyWords(packs, myWords), [packs, myWords]);

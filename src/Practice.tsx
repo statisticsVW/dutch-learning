@@ -18,7 +18,7 @@ type Props = {
 
 /** One group of new Cards, or a review: recognise and listen prompts, feedback after each answer, then "more" or back. */
 export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }: Props) {
-  const [feedback, setFeedback] = useState<(AnswerResult & Pick<Prompt, 'dutch' | 'notes'>) | undefined>();
+  const [feedback, setFeedback] = useState<(AnswerResult & Pick<Prompt, 'cardId' | 'dutch' | 'notes'>) | undefined>();
   const next = engine.nextPrompt();
 
   // A listen prompt plays as soon as it appears (once per prompt). Speaking from the tap that
@@ -40,7 +40,7 @@ export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }
         <p class={`feedback ${feedback.verdict}`} role="status">
           {feedback.verdict === 'correct' ? 'Goed zo!' : `Not quite: it means "${feedback.correctAnswer}".`}
         </p>
-        <AnswerNotes dutch={feedback.dutch} meaning={feedback.correctAnswer} notes={feedback.notes} />
+        <AnswerNotes cardId={feedback.cardId} dutch={feedback.dutch} meaning={feedback.correctAnswer} notes={feedback.notes} />
         <button
           class="primary"
           autofocus
@@ -91,7 +91,7 @@ export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }
             onClick={() => {
               const result = engine.answer(option);
               onAnswered(result);
-              setFeedback({ ...result, dutch: next.dutch, notes: next.notes });
+              setFeedback({ ...result, cardId: next.cardId, dutch: next.dutch, notes: next.notes });
             }}
           >
             {option}
