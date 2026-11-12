@@ -389,3 +389,27 @@ button.quiet {
 .not-found p {
   margin: 0.25rem 0;
 }
+.dutch-line {
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.hear {
+  min-width: 44px;
+  padding: 0.5rem;
+  line-height: 1;
+}
+.prompt-listen {
+  font-size: 1.25rem;
+  margin: 0;
+}
+.play {
+  font-size: 1.25rem;
+  padding: 1rem;
+}
+.audio-note {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: -0.5rem 0 1rem;
+}
