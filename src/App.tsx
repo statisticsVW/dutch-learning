@@ -36,7 +36,6 @@ export function App({ packs, store, clock, random }: Props) {
   const { wordsKnown, packs: summaries } = engine.overview();
   return (
     <main>
-      <h1>Dutch</h1>
       <p class="words-known">
         You know {wordsKnown} Dutch {wordsKnown === 1 ? 'word' : 'words'}
       </p>
