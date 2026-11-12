@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Card, Pack } from '../content/types';
-import { createEngine, emptyProgress, type Engine, type Progress, type Prompt } from './engine';
+import { createEngine, emptyProgress, REVIEW_SECONDS_PER_CARD, WELCOME_BACK_AFTER_DAYS, type CardProgress, type Engine, type Progress, type Prompt } from './engine';
 import { createFakeClock } from '../adapters/clock';
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -230,6 +230,8 @@ describe('progress', () => {
 
     expect(engine.overview()).toEqual({
       wordsKnown: 0,
+      fading: { count: 0, minutes: 0 },
+      welcomeBack: false,
       packs: [
         { id: 'animals', title: 'Animals', learned: 0, total: 6 },
         { id: 'big', title: 'Big', learned: 0, total: 3 },
@@ -289,5 +291,128 @@ describe('progress', () => {
     expect(saved.version).toBe(1);
     expect(after.progress()).toEqual(engine.progress());
     expect(after.overview().wordsKnown).toBe(1);
+  });
+});
+
+/** Saved progress for a Card that is in review: last answered correctly, with the given memory strength. */
+function reviewed(due: string, stability: number, lastReview = '2025-12-01T10:00:00Z'): CardProgress {
+  return {
+    due: new Date(due).toISOString(),
+    lastCorrect: true,
+    memory: { stability, difficulty: 5, scheduledDays: Math.round(stability), learningSteps: 0, reps: 2, lapses: 0, state: 2, lastReview: new Date(lastReview).toISOString() },
+  };
+}
+
+/** Learns animals-01 … 05 in one Burst at the clock's time: dog wrong (and left unanswered again), the rest right. */
+function learnWithOneSlip(clock = createFakeClock(new Date('2026-01-01T10:00:00Z'))) {
+  const { engine } = engineWith([animals], emptyProgress(), clock);
+  engine.startNewCards('animals');
+  for (const option of ['cat', 'cat', 'horse', 'fish', 'bird']) engine.answer(option);
+  return { progress: engine.progress(), clock };
+}
+
+describe('fading Cards', () => {
+  it('none are fading straight after learning', () => {
+    const { progress, clock } = learnWithOneSlip();
+
+    expect(engineWith([animals], progress, clock).engine.overview().fading).toEqual({ count: 0, minutes: 0 });
+  });
+
+  it('a Card answered wrongly fades first; the rest fade later', () => {
+    const { progress, clock } = learnWithOneSlip();
+
+    clock.advance(DAY + 60_000);
+    expect(engineWith([animals], progress, clock).engine.overview().fading.count).toBe(1);
+
+    clock.advance(30 * DAY);
+    expect(engineWith([animals], progress, clock).engine.overview().fading.count).toBe(5);
+  });
+
+  it('a Card is fading from the moment it is due', () => {
+    const due = '2026-02-01T10:00:00Z';
+    const progress: Progress = { version: 1, cards: { 'animals-01': reviewed(due, 3) } };
+    const at = (iso: string) => engineWith([animals], progress, createFakeClock(new Date(iso))).engine.overview().fading.count;
+
+    expect(at('2026-02-01T09:59:59Z')).toBe(0);
+    expect(at(due)).toBe(1);
+  });
+
+  it('estimates whole minutes of reviewing, rounding up', () => {
+    const packs = [bigPack(15)];
+    const cards = Object.fromEntries(packs[0].cards.map((c) => [c.id, reviewed('2026-01-01T00:00:00Z', 3)]));
+    const clock = createFakeClock(new Date('2026-02-01T10:00:00Z'));
+
+    const few = engineWith(packs, { version: 1, cards: Object.fromEntries(Object.entries(cards).slice(0, 1)) }, clock).engine;
+    const many = engineWith(packs, { version: 1, cards }, clock).engine;
+
+    expect(few.overview().fading).toEqual({ count: 1, minutes: 1 });
+    expect(many.overview().fading).toEqual({ count: 15, minutes: Math.ceil((15 * REVIEW_SECONDS_PER_CARD) / 60) });
+    expect(many.overview().fading.minutes).toBeGreaterThan(1);
+  });
+});
+
+describe('reviewing fading Cards', () => {
+  const now = new Date('2026-03-01T10:00:00Z');
+  const progress: Progress = {
+    version: 1,
+    cards: {
+      'animals-01': reviewed('2026-02-24T10:00:00Z', 10), // 5 days over, strong: 0.5
+      'animals-02': reviewed('2026-02-27T10:00:00Z', 1), // 2 days over, weak: 2
+      'animals-03': reviewed('2026-02-09T10:00:00Z', 30), // 20 days over, very strong: 0.67
+      'animals-04': reviewed('2026-03-05T10:00:00Z', 10), // not due yet
+    },
+  };
+
+  it('asks the most overdue Cards (relative to how well they were known) first, and only fading ones', () => {
+    const { engine } = engineWith([animals], progress, createFakeClock(now));
+
+    engine.startReview();
+
+    expect(answerGroup(engine, [animals])).toEqual(['animals-02', 'animals-03', 'animals-01']);
+    expect(engine.nextPrompt()).toEqual({ kind: 'group-done', canDoMore: false });
+  });
+
+  it('reviewed Cards stop fading, and reviewing does not use up new Cards', () => {
+    const { engine } = engineWith([animals], progress, createFakeClock(now));
+
+    engine.startReview();
+    answerGroup(engine, [animals]);
+
+    expect(engine.overview().fading.count).toBe(0);
+    engine.startNewCards('animals');
+    expect(answerGroup(engine, [animals])).toEqual(['animals-05', 'animals-06']);
+  });
+
+  it('a wrong review is asked again before the review ends', () => {
+    const { engine } = engineWith([animals], progress, createFakeClock(now));
+
+    engine.startReview();
+    engine.answer('nonsense');
+
+    expect(answerGroup(engine, [animals])).toEqual(['animals-03', 'animals-01', 'animals-02']);
+  });
+});
+
+describe('welcome back', () => {
+  const lastBurst = new Date('2026-01-01T10:00:00Z');
+  const savedAfterOneBurst = () => learnWithOneSlip(createFakeClock(lastBurst)).progress;
+  const openAt = (progress: Progress, daysLater: number) =>
+    engineWith([animals], progress, createFakeClock(new Date(lastBurst.getTime() + daysLater * DAY))).engine;
+
+  it('is not shown on the very first Burst', () => {
+    expect(openAt(emptyProgress(), 100).overview().welcomeBack).toBe(false);
+  });
+
+  it('is not shown after a short gap', () => {
+    expect(openAt(savedAfterOneBurst(), WELCOME_BACK_AFTER_DAYS - 0.1).overview().welcomeBack).toBe(false);
+  });
+
+  it('is shown after a gap of the threshold or more, and stays for the whole Burst', () => {
+    const engine = openAt(savedAfterOneBurst(), WELCOME_BACK_AFTER_DAYS);
+    expect(engine.overview().welcomeBack).toBe(true);
+
+    engine.startReview();
+    answerGroup(engine, [animals]);
+    expect(engine.overview().welcomeBack).toBe(true);
   });
 });

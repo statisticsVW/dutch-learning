@@ -10,10 +10,10 @@ This ticket establishes the learning engine as a pure module with a small interf
 
 **Status:** ready-for-agent
 
-- [ ] Engine tests (fake clock, fixture content) cover groups of 5, "more", and the cap of 15 per Burst
-- [ ] Engine tests cover correct/wrong verdicts and that due dates move accordingly
-- [ ] Engine tests cover progress keyed by Card id surviving a change to that Card's text; progress for removed ids is ignored without error
-- [ ] Engine tests cover Pack progress and "words you know" totals
-- [ ] Stopping mid-Burst loses nothing (progress persisted after each answer)
-- [ ] UI flow test: pick a Pack, answer a group of 5, see the progress ring move
+- [x] Engine tests (fake clock, fixture content) cover groups of 5, "more", and the cap of 15 per Burst
+- [x] Engine tests cover correct/wrong verdicts and that due dates move accordingly
+- [x] Engine tests cover progress keyed by Card id surviving a change to that Card's text; progress for removed ids is ignored without error
+- [x] Engine tests cover Pack progress and "words you know" totals
+- [x] Stopping mid-Burst loses nothing (progress persisted after each answer)
+- [x] UI flow test: pick a Pack, answer a group of 5, see the progress ring move
 - [ ] Works on the live URL on an iPhone
