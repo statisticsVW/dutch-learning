@@ -1,14 +1,15 @@
-import type { Pack } from './content/types';
+import type { PackSummary } from './engine/engine';
+import { ProgressRing } from './ProgressRing';
 
-export function PackList({ packs }: { packs: Pack[] }) {
+export function PackList({ packs, onPick }: { packs: PackSummary[]; onPick: (packId: string) => void }) {
   return (
     <ul class="pack-list" aria-label="Packs">
       {packs.map((pack) => (
-        <li key={pack.id} class="pack">
-          <span class="pack-title">{pack.title}</span>
-          <span class="pack-count">
-            {pack.cards.length} {pack.cards.length === 1 ? 'Card' : 'Cards'}
-          </span>
+        <li key={pack.id}>
+          <button class="pack" onClick={() => onPick(pack.id)}>
+            <span class="pack-title">{pack.title}</span>
+            <ProgressRing learned={pack.learned} total={pack.total} />
+          </button>
         </li>
       ))}
     </ul>
