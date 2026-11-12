@@ -1,0 +1,2 @@
+# Downloaded source files are kept byte-for-byte, so their recorded SHA-256 stays true.
+sources/nt2lex/*.tsv -text
