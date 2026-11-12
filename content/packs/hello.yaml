@@ -1,0 +1,26 @@
+# Pack: Hello & being polite
+# Each Card needs: id (unique, never reuse or change it), dutch, english, pos.
+# Nouns also get an article: de or het.
+title: Hello & being polite
+cards:
+  - id: hello-01
+    dutch: hallo
+    english: hello
+    pos: interjection
+  - id: hello-02
+    dutch: dank je
+    english: [thank you, thanks]
+    pos: phrase
+  - id: hello-03
+    dutch: alsjeblieft
+    english: [please, here you go]
+    pos: phrase
+  - id: hello-04
+    dutch: goedemorgen
+    english: good morning
+    pos: phrase
+  - id: hello-05
+    dutch: naam
+    english: name
+    pos: noun
+    article: de
