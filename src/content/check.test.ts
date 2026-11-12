@@ -482,6 +482,19 @@ cards:
     ]);
   });
 
+  it('explains that a Fact with a colon in it needs quotes', () => {
+    const text = `
+title: Tip
+facts:
+  - Fun fact: ja means yes.
+cards:
+  - { id: tip-01, dutch: nee, english: no, pos: interjection }
+`;
+    const errors = errorsOf(checkWithTestSnapshot([{ path: 'content/packs/tip.yaml', text }]));
+
+    expect(errors).toEqual(['content/packs/tip.yaml: Pack fact #1 has a colon followed by a space, so put the whole Fact in double quotes: "like: this".']);
+  });
+
   it('accepts a single Pack Fact written without a list', () => {
     const result = checkWithTestSnapshot([{ path: 'content/packs/one.yaml', text: 'title: One\nfacts: Hallo is hello.\ncards:\n  - { id: one-01, dutch: ja, english: yes, pos: interjection }\n' }]);
 

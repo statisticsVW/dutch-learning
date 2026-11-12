@@ -8,6 +8,7 @@ import {
   PARTS_OF_SPEECH,
   type Article,
   type Card,
+  type CardNotes,
   type DictionaryEntry,
   type Fact,
   type FactPlace,
@@ -184,8 +185,8 @@ function checkKnownFields(raw: Record<string, unknown>, known: string[], thing: 
 }
 
 /** The optional Cognate / False-friend flag and Fact on a Card, without any field that was left out. */
-function checkCardNotes(card: Card, raw: Record<string, unknown>, cardError: (message: string) => void): Pick<Card, 'cognate' | 'falseFriend' | 'fact'> {
-  const notes: Pick<Card, 'cognate' | 'falseFriend' | 'fact'> = {};
+function checkCardNotes(card: Card, raw: Record<string, unknown>, cardError: (message: string) => void): CardNotes {
+  const notes: CardNotes = {};
   const { cognate, fact } = raw;
   const looksLike = raw['false-friend'];
 
@@ -229,6 +230,8 @@ function checkPackFacts(raw: unknown, about: FactPlace, fileError: (message: str
 
 /** What is wrong with a Fact's text, or undefined when it is fine. */
 function factProblem(text: unknown): string | undefined {
+  // YAML reads "Fun fact: ja means yes." as a field, not as text.
+  if (isRecord(text)) return 'has a colon followed by a space, so put the whole Fact in double quotes: "like: this"';
   if (!isText(text)) return 'should be one short sentence (text)';
   const length = text.trim().length;
   if (length > MAX_FACT_LENGTH) return `is ${length} characters long; keep a Fact short (at most ${MAX_FACT_LENGTH} characters)`;

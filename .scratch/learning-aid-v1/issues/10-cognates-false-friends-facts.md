@@ -8,6 +8,6 @@ Spec: `.scratch/learning-aid-v1/spec.md`. Glossary: `CONTEXT.md`.
 
 **Status:** ready-for-agent
 
-- [ ] Content-check tests for valid and invalid note fields
-- [ ] UI flow tests: a Cognate, a False friend and a Fact each display as intended
-- [ ] Sample Pack updated with at least one of each
+- [x] Content-check tests for valid and invalid note fields
+- [x] UI flow tests: a Cognate, a False friend and a Fact each display as intended
+- [x] Sample Pack updated with at least one of each
