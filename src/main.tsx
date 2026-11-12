@@ -9,16 +9,20 @@ import { InstallGate } from './install/InstallGate';
 import { browserInstallStatus } from './install/installStatus';
 import { createLocalPersonalisationStore } from './adapters/personalisation-store';
 import { PersonaliseGate } from './personalise/PersonaliseGate';
+import { createBrowserBackupFiles } from './backup/files';
 import './style.css';
 
+const progress = createLocalProgressStore(localStorage);
+const myWords = createLocalMyWordsStore(localStorage);
 const speech = createBrowserSpeech('speechSynthesis' in window ? window.speechSynthesis : undefined);
 // The Dictionary is its own file in the build, fetched only when the Learner opens the Dictionary screen.
-const dictionary = { load: () => import('virtual:dictionary').then((m) => m.default), myWords: createLocalMyWordsStore(localStorage) };
+const dictionary = { load: () => import('virtual:dictionary').then((m) => m.default), myWords };
+const backup = { progress, myWords, files: createBrowserBackupFiles(), clock: systemClock };
 
 render(
   <InstallGate installStatus={browserInstallStatus()}>
-    <PersonaliseGate store={createLocalPersonalisationStore(localStorage)}>
-      <App packs={packs} store={createLocalProgressStore(localStorage)} clock={systemClock} dictionary={dictionary} speech={speech} />
+    <PersonaliseGate store={createLocalPersonalisationStore(localStorage)} backup={backup}>
+      <App packs={packs} store={progress} clock={systemClock} dictionary={dictionary} speech={speech} />
     </PersonaliseGate>
   </InstallGate>,
   document.getElementById('app')!,

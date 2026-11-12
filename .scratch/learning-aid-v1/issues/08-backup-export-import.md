@@ -6,9 +6,11 @@ Spec: `.scratch/learning-aid-v1/spec.md`. ADR: 0001.
 
 **Blocked by:** 02
 
-**Status:** ready-for-agent
+**Status:** done (pending the iPhone check)
 
-- [ ] Engine tests: export → import round-trip restores identical progress
-- [ ] Engine tests: malformed, wrong-shape and unknown-version imports are rejected without changing state
-- [ ] UI flow test: importing a bad file shows the message and progress is unchanged
+- [x] Engine tests: export → import round-trip restores identical progress
+- [x] Engine tests: malformed, wrong-shape and unknown-version imports are rejected without changing state
+- [x] UI flow test: importing a bad file shows the message and progress is unchanged
 - [ ] Manually verified export and import on iPhone (Safari and Home Screen app)
+
+**Notes:** The backup format and import validation live in `src/backup/backup.ts` (pure, no DOM), not in the engine, so the engine and its progress shape are unchanged. A backup holds progress, the app name and theme, and Mijn woorden. Save and Load are in Settings. Loading asks before it replaces anything. Saving uses the share sheet when the browser can share files, and a download otherwise.

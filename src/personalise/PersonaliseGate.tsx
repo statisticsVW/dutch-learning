@@ -2,6 +2,8 @@ import type { ComponentChildren } from 'preact';
 import { useLayoutEffect, useState } from 'preact/hooks';
 import type { Personalisation, PersonalisationStore } from '../adapters/personalisation-store';
 import { DEFAULT_THEME, THEMES, type ThemeId } from './themes';
+import { BackupSection, type BackupDeps } from '../backup/BackupSection';
+import type { Backup } from '../backup/backup';
 
 const FALLBACK_NAME = 'Dutch';
 const MAX_NAME_LENGTH = 30;
@@ -9,10 +11,14 @@ const MAX_NAME_LENGTH = 30;
 /**
  * Wraps the app: on first launch the Learner names the app and picks a colour theme; after that the
  * app shows under a header with his chosen name and a way into settings to change either.
+ * With `backup`, settings can also save a backup file and load one back.
  */
-export function PersonaliseGate({ store, children }: { store: PersonalisationStore; children: ComponentChildren }) {
+export function PersonaliseGate({ store, backup, children }: { store: PersonalisationStore; backup?: BackupDeps; children: ComponentChildren }) {
   const [chosen, setChosen] = useState(() => store.load());
   const [inSettings, setInSettings] = useState(false);
+  /** Counts loaded backups: a new count restarts the app on the restored progress. */
+  const [restores, setRestores] = useState(0);
+  const [justRestored, setJustRestored] = useState(false);
 
   // Layout effect: apply the saved theme before the first paint, so the default colours never flash.
   useLayoutEffect(() => {
@@ -23,6 +29,17 @@ export function PersonaliseGate({ store, children }: { store: PersonalisationSto
     store.save(personalisation);
     setChosen(personalisation);
     setInSettings(false);
+  };
+
+  const restored = (loaded: Backup) => {
+    setChosen(loaded.personalisation);
+    setRestores((n) => n + 1);
+    setJustRestored(true);
+    setInSettings(false);
+  };
+  const openSettings = () => {
+    setJustRestored(false);
+    setInSettings(true);
   };
 
   if (!chosen) {
@@ -40,7 +57,7 @@ export function PersonaliseGate({ store, children }: { store: PersonalisationSto
       <header class="app-header">
         <h1>{chosen.name}</h1>
         {!inSettings && (
-          <button type="button" class="quiet" onClick={() => setInSettings(true)}>
+          <button type="button" class="quiet" onClick={openSettings}>
             Settings
           </button>
         )}
@@ -49,10 +66,18 @@ export function PersonaliseGate({ store, children }: { store: PersonalisationSto
         <main class="personalise">
           <h2>Settings</h2>
           <PersonaliseForm initial={chosen} submitLabel="Save" onSubmit={save} onCancel={() => setInSettings(false)} />
+          {backup && <BackupSection {...backup} personalisation={store} onRestored={restored} />}
         </main>
       )}
-      {/* Kept mounted while in settings, so a Burst in progress carries on afterwards. */}
-      <div hidden={inSettings}>{children}</div>
+      {justRestored && (
+        <p class="notice" role="status">
+          Backup loaded.
+        </p>
+      )}
+      {/* Kept mounted while in settings, so a Burst in progress carries on afterwards. Loading a backup restarts it. */}
+      <div hidden={inSettings} key={restores}>
+        {children}
+      </div>
     </>
   );
 }
