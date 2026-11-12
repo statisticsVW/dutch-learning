@@ -35,6 +35,41 @@ Every Card has:
 
 To add a Pack, add a new `.yaml` file to `content/packs/` with a `title` and at least one Card.
 
+## Cognates, False friends and Facts (optional)
+
+These notes make Dutch feel discoverable. Add them to any Card, in the same Pack file:
+
+```yaml
+title: Food
+facts:
+  - The Dutch put chocolate sprinkles (hagelslag) on their bread.
+cards:
+  - id: food-01
+    dutch: appel
+    english: apple
+    pos: noun
+    article: de
+    cognate: true
+    fact: Appeltaart (apple pie) is a Dutch favourite.
+  - id: food-02
+    dutch: brutaal
+    english: cheeky
+    pos: adjective
+    false-friend: brutal
+```
+
+| Field          | Where      | What to write                                                                                     |
+| -------------- | ---------- | ------------------------------------------------------------------------------------------------- |
+| `cognate`      | Card       | `true` for a word an English speaker can already guess (appel, water). The app says "You already know this one!" |
+| `false-friend` | Card       | The English word it **looks like** but doesn't mean (brutaal → `brutal`). The real meaning stays in `english`. The app warns before the answer and explains the trap after it. |
+| `fact`         | Card       | One short "did you know" sentence, shown after the Learner answers the Card.                     |
+| `facts`        | Pack (top) | A list of short sentences, each on its own line starting with `- `. One is shown after each group of new Cards from the Pack. |
+
+A Card is either a Cognate or a False friend, never both. Keep each Fact under 200 characters.
+Every field is checked by name, so a misspelt one (`falsefriend`, `fact` at the top of the
+Pack) fails the check instead of being quietly ignored. Dictionary entries may use the same
+Card notes.
+
 ## When the check fails
 
 If something is wrong, the site is **not** updated: the Learner keeps the last good version.
@@ -61,6 +96,13 @@ Fix the Card it names, commit again, and the check reruns. What the common messa
 | `is already in this Pack as Card …`               | The same word is in the Pack twice: delete one Card, or merge the meanings into one Card's `english` list. |
 | `Card id "…" is used more than once`              | Give the newer Card a fresh id. Don't change the id of a Card that has been live for a while. |
 | `another Pack file … has the same name`           | Two files differ only by `.yaml`/`.yml`: rename or merge them.                                 |
+| `is not a Card field` (or Pack, entry)            | A field name is misspelt. Use one of the names the message lists.                              |
+| `"cognate" must be true`                          | Write `cognate: true` (not `yes`), or remove the line.                                         |
+| `"false-friend" should be the English word`       | Write the one English word it looks like: `false-friend: brutal`.                              |
+| `can't be both a Cognate and a False friend`      | Keep only the one that fits.                                                                   |
+| `but that is also what it means`                  | The word means what it looks like, so it is a Cognate: write `cognate: true` instead.          |
+| `keep a Fact short` / `should be one short sentence` | Shorten the Fact to under 200 characters, as plain text on one line.                        |
+| `has a colon followed by a space`                 | Put the whole Fact in double quotes: `- "Fun fact: ja means yes."`                             |
 | `the name "mijn-woorden" is kept`                  | That name belongs to the Learner's own Pack. Rename your file.                                 |
 | `is already used by a Card in the Pack …`         | A Dictionary entry has the same id as a Pack Card: give the entry a fresh id.                  |
 

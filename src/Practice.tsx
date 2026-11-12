@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { AnswerResult, Engine, GroupDone, Prompt } from './engine/engine';
 import type { Speak } from './adapters/speech';
+import { AnswerNotes, FactNote, PromptNote } from './CardNotes';
 
 /** What the Learner chose on the home screen. */
 export type Activity = { kind: 'new'; packId: string } | { kind: 'review' };
@@ -17,7 +18,7 @@ type Props = {
 
 /** One group of new Cards, or a review: recognise and listen prompts, feedback after each answer, then "more" or back. */
 export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }: Props) {
-  const [feedback, setFeedback] = useState<(AnswerResult & { dutch: string }) | undefined>();
+  const [feedback, setFeedback] = useState<(AnswerResult & Pick<Prompt, 'dutch' | 'notes'>) | undefined>();
   const next = engine.nextPrompt();
 
   // A listen prompt plays as soon as it appears (once per prompt). Speaking from the tap that
@@ -39,6 +40,7 @@ export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }
         <p class={`feedback ${feedback.verdict}`} role="status">
           {feedback.verdict === 'correct' ? 'Goed zo!' : `Not quite: it means "${feedback.correctAnswer}".`}
         </p>
+        <AnswerNotes dutch={feedback.dutch} meaning={feedback.correctAnswer} notes={feedback.notes} />
         <button
           class="primary"
           autofocus
@@ -57,6 +59,7 @@ export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }
     return (
       <section class="practice">
         <p class="feedback">{doneMessage(activity, next.canDoMore)}</p>
+        {next.fact && <FactNote fact={next.fact} />}
         {next.canDoMore && (
           <button class="primary" onClick={onMore}>
             More
@@ -79,6 +82,7 @@ export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }
       ) : (
         <DutchHeading dutch={next.dutch} speak={speak} />
       )}
+      <PromptNote notes={next.notes} />
       <div class="options">
         {next.options.map((option) => (
           <button
@@ -87,7 +91,7 @@ export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }
             onClick={() => {
               const result = engine.answer(option);
               onAnswered(result);
-              setFeedback({ ...result, dutch: next.dutch });
+              setFeedback({ ...result, dutch: next.dutch, notes: next.notes });
             }}
           >
             {option}
