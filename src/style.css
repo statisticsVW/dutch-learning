@@ -485,3 +485,62 @@ button.quiet {
 .about a {
   color: var(--fg);
 }
+/* Word requests and Mistake reports: small and out of the way, so they never compete with practice. */
+.share-button {
+  font-size: 0.875rem;
+  padding: 0.5rem 0;
+  justify-self: center;
+}
+.fact .share-button {
+  display: block;
+  margin-top: 0.25rem;
+}
+.share-status {
+  font-size: 0.875rem;
+  text-align: center;
+  margin: 0.25rem 0;
+}
+.share-manual {
+  display: grid;
+  gap: 0.375rem;
+  text-align: left;
+}
+.share-manual textarea {
+  font: inherit;
+  font-size: max(1rem, 16px);
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+.recall {
+  display: grid;
+  gap: 0.75rem;
+}
+.prompt-english {
+  font-size: 1.75rem;
+  text-align: center;
+  margin: 1rem 0 0.5rem;
+}
+.recall-label {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+/* 16px or more stops iOS Safari zooming in when the field is focused. */
+.recall-input {
+  font: inherit;
+  font-size: 1.25rem;
+  padding: 0.75rem 1rem;
+  min-height: 44px;
+  border-radius: 0.75rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--fg);
+}
+.recall-input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}

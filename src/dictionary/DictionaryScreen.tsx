@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'preact/hooks';
 import type { DictionaryEntry } from '../content/types';
 import { addWord, dutchWithArticle, refreshWords, removeWord } from './my-words';
 import { searchDictionary } from './search';
+import { wordRequest } from '../adapters/share';
+import { ShareButton } from '../ShareButton';
 
 type Props = {
   /** Fetches the Dictionary; it is a separate file, loaded only when this screen opens. */
@@ -74,6 +76,7 @@ export function DictionaryScreen({ load, words, onChange, onBack }: Props) {
               <div class="not-found" role="status">
                 <p>“{query.trim()}” is not in my dictionary yet.</p>
                 <p class="muted">Try another spelling, or a simpler word.</p>
+                <ShareButton key={query.trim()} label={`Ask for “${query.trim()}” to be added`} kind="Word request" message={wordRequest(query.trim())} />
               </div>
             ))}
         </>

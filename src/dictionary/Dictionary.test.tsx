@@ -5,6 +5,7 @@ import type { DictionaryEntry, Pack } from '../content/types';
 import { createMemoryProgressStore } from '../adapters/progress-store';
 import { createMemoryMyWordsStore } from '../adapters/my-words-store';
 import { createFakeClock } from '../adapters/clock';
+import { createFakeShare, wordRequest } from '../adapters/share';
 
 const hello: Pack = {
   id: 'hello',
@@ -23,10 +24,11 @@ const dictionary: DictionaryEntry[] = [
 
 function renderApp(myWords = createMemoryMyWordsStore(), load = () => Promise.resolve(dictionary)) {
   const progress = createMemoryProgressStore();
+  const share = createFakeShare();
   render(
-    <App packs={[hello]} store={progress} clock={createFakeClock(new Date('2026-01-01T10:00:00Z'))} random={() => 0.5} dictionary={{ load, myWords }} />,
+    <App packs={[hello]} store={progress} clock={createFakeClock(new Date('2026-01-01T10:00:00Z'))} random={() => 0.5} dictionary={{ load, myWords }} share={share} />,
   );
-  return { progress, myWords };
+  return { progress, myWords, share };
 }
 
 async function openDictionaryAndSearch(query: string) {
@@ -86,6 +88,24 @@ describe('Dictionary and Mijn woorden', () => {
 
     expect(screen.getByText('“xylofoon” is not in my dictionary yet.')).toBeTruthy();
     expect(screen.queryByRole('list', { name: 'Results' })).toBeNull();
+  });
+
+  it('sends a Word request naming the word the Learner searched for', async () => {
+    const { share } = renderApp();
+    await openDictionaryAndSearch('  xylofoon ');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ask for “xylofoon” to be added' }));
+
+    expect(share.sent).toEqual([wordRequest('xylofoon')]);
+    expect(share.sent[0]).toContain('xylofoon');
+    expect(await screen.findByText('Thanks! Your Word request is on its way.')).toBeTruthy();
+  });
+
+  it('offers a Word request only when the search finds nothing', async () => {
+    renderApp();
+    await openDictionaryAndSearch('book');
+
+    expect(screen.queryByRole('button', { name: /Ask for/ })).toBeNull();
   });
 
   it('explains when the Dictionary cannot be loaded', async () => {
