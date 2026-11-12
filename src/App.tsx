@@ -50,7 +50,6 @@ export function App({ packs, store, clock, random }: Props) {
   const { wordsKnown, fading, welcomeBack, packs: summaries } = engine.overview();
   return (
     <main>
-      <h1>Dutch</h1>
       {welcomeBack && !welcomeDismissed && (
         <p class="welcome-back" role="status">
           Welcome back! Good to see you. Pick anything you like.

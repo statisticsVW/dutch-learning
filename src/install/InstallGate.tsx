@@ -56,7 +56,7 @@ function InstallScreen({ onContinue }: { onContinue: () => void }) {
 function InstallReminder() {
   return (
     <aside class="install-reminder" role="note" aria-label="Install reminder">
-      Add Dutch to your Home Screen (Share, then Add to Home Screen) so your progress doesn't vanish.
+      Add this app to your Home Screen (Share, then Add to Home Screen) so your progress doesn't vanish.
     </aside>
   );
 }

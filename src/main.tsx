@@ -5,11 +5,15 @@ import { systemClock } from './adapters/clock';
 import { createLocalProgressStore } from './adapters/progress-store';
 import { InstallGate } from './install/InstallGate';
 import { browserInstallStatus } from './install/installStatus';
+import { createLocalPersonalisationStore } from './adapters/personalisation-store';
+import { PersonaliseGate } from './personalise/PersonaliseGate';
 import './style.css';
 
 render(
   <InstallGate installStatus={browserInstallStatus()}>
-    <App packs={packs} store={createLocalProgressStore(localStorage)} clock={systemClock} />
+    <PersonaliseGate store={createLocalPersonalisationStore(localStorage)}>
+      <App packs={packs} store={createLocalProgressStore(localStorage)} clock={systemClock} />
+    </PersonaliseGate>
   </InstallGate>,
   document.getElementById('app')!,
 );
