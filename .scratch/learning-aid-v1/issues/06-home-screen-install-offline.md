@@ -8,7 +8,7 @@ Spec: `.scratch/learning-aid-v1/spec.md`. ADR: 0001.
 
 **Status:** ready-for-agent
 
-- [ ] Install-status adapter with a real implementation and a fake
-- [ ] UI flow tests: first visit in a tab shows the install screen once; continuing is possible; the reminder shows in a tab; nothing shows when installed
-- [ ] The app loads with no network after a first visit
+- [x] Install-status adapter with a real implementation and a fake
+- [x] UI flow tests: first visit in a tab shows the install screen once; continuing is possible; the reminder shows in a tab; nothing shows when installed
+- [x] The app loads with no network after a first visit
 - [ ] Manually verified: added to an iPhone Home Screen, it opens full-screen with the right icon and name
