@@ -8,8 +8,8 @@ Spec: `.scratch/learning-aid-v1/spec.md`. Glossary: `CONTEXT.md`.
 
 **Status:** ready-for-agent
 
-- [ ] Engine tests: fading count and minute estimate at different fake-clock times
-- [ ] Engine tests: review order puts the most useful Cards (most overdue relative to their stability) first
-- [ ] Engine tests: welcome back shown only after the gap threshold
-- [ ] The Learner can skip reviewing and go straight to a Pack
-- [ ] UI flow test: after advancing the fake clock, home shows fading Cards and welcome back
+- [x] Engine tests: fading count and minute estimate at different fake-clock times
+- [x] Engine tests: review order puts the most useful Cards (most overdue relative to their stability) first
+- [x] Engine tests: welcome back shown only after the gap threshold
+- [x] The Learner can skip reviewing and go straight to a Pack
+- [x] UI flow test: after advancing the fake clock, home shows fading Cards and welcome back
