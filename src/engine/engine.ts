@@ -27,7 +27,10 @@ export function emptyProgress(): Progress {
   return { version: 1, cards: {} };
 }
 
-export type Prompt = { kind: 'prompt'; cardId: string; mode: 'recognise'; dutch: string; options: string[] };
+/** How a prompt asks: recognise (read the Dutch) or listen (hear it); both pick the English meaning. */
+export type PracticeMode = 'recognise' | 'listen';
+/** `dutch` is shown for recognise, and spoken (not shown) for listen. */
+export type Prompt = { kind: 'prompt'; cardId: string; mode: PracticeMode; dutch: string; options: string[] };
 export type GroupDone = { kind: 'group-done'; canDoMore: boolean };
 export type AnswerResult = { verdict: 'correct' | 'wrong'; correctAnswer: string; progress: Progress };
 export type PackSummary = { id: string; title: string; learned: number; total: number };
@@ -47,11 +50,18 @@ export type Engine = {
   progress(): Progress;
 };
 
-export type EngineDeps = { packs: Pack[]; progress: Progress; clock: Clock; random?: () => number };
+export type EngineDeps = {
+  packs: Pack[];
+  progress: Progress;
+  clock: Clock;
+  random?: () => number;
+  /** Whether the device can speak Dutch. Asked per prompt, since the answer can arrive after the Burst starts. */
+  audioAvailable?: () => boolean;
+};
 
 const scheduler = fsrs({ request_retention: 0.9, enable_fuzz: false, enable_short_term: false });
 
-export function createEngine({ packs, progress: saved, clock, random = Math.random }: EngineDeps): Engine {
+export function createEngine({ packs, progress: saved, clock, random = Math.random, audioAvailable = () => false }: EngineDeps): Engine {
   const progress: Progress = structuredClone(saved);
   const allCards = packs.flatMap((p) => p.cards);
   /** New Cards answered for the first time in this Burst (counts toward the cap). */
@@ -79,6 +89,15 @@ export function createEngine({ packs, progress: saved, clock, random = Math.rand
   };
   const canDoMore = () => newCardsPackId !== undefined && introducedThisBurst < MAX_NEW_CARDS_PER_BURST && unseen(findPack(newCardsPackId)).length > 0;
 
+  /**
+   * A Card is first met written down (recognise). After that, recognise and listen take turns,
+   * so new and weak Cards are both read and heard.
+   */
+  function modeFor(card: Card): PracticeMode {
+    const reps = progress.cards[card.id]?.memory.reps ?? 0;
+    return audioAvailable() && reps % 2 === 1 ? 'listen' : 'recognise';
+  }
+
   function buildPrompt(card: Card): Prompt {
     const answer = meaningOf(card);
     const pack = packs.find((p) => p.cards.includes(card))!;
@@ -89,7 +108,7 @@ export function createEngine({ packs, progress: saved, clock, random = Math.rand
     return {
       kind: 'prompt',
       cardId: card.id,
-      mode: 'recognise',
+      mode: modeFor(card),
       dutch: displayDutch(card),
       options: shuffle([answer, ...distractors], random),
     };
