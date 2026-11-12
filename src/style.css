@@ -359,3 +359,46 @@ button.quiet {
 .not-found p {
   margin: 0.25rem 0;
 }
+.backup {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+.backup h3 {
+  margin: 0 0 0.25rem;
+}
+/* The file picker looks like the other buttons; the real input stays focusable for keyboards and screen readers. */
+.file-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0.75rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 0.75rem 1rem;
+  min-height: 44px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+.file-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  cursor: pointer;
+}
+.file-button:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.backup-problem,
+.notice {
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--surface);
+  border: 2px solid var(--accent);
+}
+.notice {
+  /* Lines up with <main>: 32rem wide, 1rem padding, never touching the screen edge. */
+  margin: 1rem max(1rem, calc((100% - 30rem) / 2)) 0;
+}
