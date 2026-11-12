@@ -15,9 +15,7 @@ import type { ArticleSnapshot } from '../src/content/check.ts';
 import { ARTICLES, type Article } from '../src/content/types.ts';
 import { SNAPSHOT_PATH } from './read-content.ts';
 import { nounMeaningsByArticle } from './wiktionary-senses.ts';
-
-const API = 'https://en.wiktionary.org/w/api.php';
-const USER_AGENT = 'dutch-learning-content-snapshot/1.0 (build script; Node fetch)';
+import { api, pageTexts } from './wiktionary-api.ts';
 
 const CATEGORIES: Record<string, Article> = {
   'Dutch masculine nouns': 'de',
@@ -25,34 +23,6 @@ const CATEGORIES: Record<string, Article> = {
   'Dutch common-gender nouns': 'de',
   'Dutch neuter nouns': 'het',
 };
-
-type ApiResponse = {
-  error?: { code: string; info: string };
-  continue?: Record<string, string>;
-  query?: {
-    categorymembers?: { title: string }[];
-    pages?: { title: string; missing?: boolean; revisions?: { slots: { main: { content: string } } }[] }[];
-  };
-};
-
-/** One MediaWiki API call, waiting and retrying while Wiktionary says it is busy. */
-async function api(params: Record<string, string>): Promise<ApiResponse> {
-  const url = `${API}?${new URLSearchParams({ format: 'json', formatversion: '2', maxlag: '5', ...params })}`;
-  for (let attempt = 1; ; attempt++) {
-    const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT, 'Api-User-Agent': USER_AGENT } });
-    const body = response.ok ? ((await response.json()) as ApiResponse) : undefined;
-    const busy = response.status === 429 || response.status === 503 || body?.error?.code === 'maxlag';
-    if (body && !busy) {
-      if (body.error) throw new Error(`Wiktionary error: ${body.error.info}`);
-      await sleep(1000); // be gentle with the API
-      return body;
-    }
-    if (!busy || attempt === 8) throw new Error(`Wiktionary answered ${response.status} ${body?.error?.info ?? response.statusText}`);
-    const waitSeconds = Number(response.headers.get('retry-after')) || 5 * 2 ** attempt;
-    console.log(`Wiktionary is busy; waiting ${waitSeconds}s before trying again.`);
-    await sleep(waitSeconds * 1000);
-  }
-}
 
 async function categoryMembers(category: string): Promise<string[]> {
   const titles: string[] = [];
@@ -73,25 +43,6 @@ async function categoryMembers(category: string): Promise<string[]> {
   }
 }
 
-async function pageTexts(titles: string[]): Promise<Map<string, string>> {
-  const texts = new Map<string, string>();
-  for (let i = 0; i < titles.length; i += 50) {
-    const body = await api({
-      action: 'query',
-      prop: 'revisions',
-      rvprop: 'content',
-      rvslots: 'main',
-      titles: titles.slice(i, i + 50).join('|'),
-    });
-    for (const page of body.query?.pages ?? []) {
-      const text = page.revisions?.[0]?.slots.main.content;
-      if (text) texts.set(page.title, text);
-    }
-    console.log(`Read ${Math.min(i + 50, titles.length)} of ${titles.length} pages with both articles.`);
-  }
-  return texts;
-}
-
 // Step 1: categories.
 const found = new Map<string, Set<Article>>();
 for (const [category, article] of Object.entries(CATEGORIES)) {
@@ -106,7 +57,7 @@ for (const [category, article] of Object.entries(CATEGORIES)) {
 // Step 2: words with both articles.
 const snapshot: Record<string, ArticleSnapshot[string]> = {};
 const both = [...found].filter(([, articles]) => articles.size > 1).map(([word]) => word);
-const texts = await pageTexts(both);
+const texts = await pageTexts(both, 'pages with both articles');
 for (const [word, articles] of found) {
   snapshot[word] = ARTICLES.filter((a) => articles.has(a));
   const text = texts.get(word);
@@ -140,7 +91,3 @@ writeFileSync(SNAPSHOT_PATH, `${lines.join('\n')}\n`);
 const split = words.filter((w) => !Array.isArray(snapshot[w])).length;
 const stillBoth = words.filter((w) => Array.isArray(snapshot[w]) && snapshot[w].length > 1).length;
 console.log(`Wrote ${words.length} nouns to ${SNAPSHOT_PATH} (${split} checked by meaning, ${stillBoth} accept either article).`);
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}

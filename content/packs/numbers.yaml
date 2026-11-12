@@ -1,0 +1,98 @@
+# Pack: Numbers
+# Each Card needs: id (unique, never reuse or change it), dutch, english, pos.
+# Nouns also get an article: de or het. Optional: cognate, false-friend, fact (and facts for the Pack).
+# How-to: docs/curator-guide.md
+title: Numbers
+facts:
+  - Above twenty, Dutch says numbers the other way round. 21 is eenentwintig, "one-and-twenty".
+  - In Dutch, 2,5 means two and a half (a comma, not a dot), and 1.000 means a thousand.
+cards:
+  - id: numbers-01
+    dutch: nul
+    english: zero
+    pos: numeral
+  - id: numbers-02
+    dutch: één
+    english: one
+    pos: numeral
+    fact: The accents show that één means one. Without them, een usually means "a" or "an".
+  - id: numbers-03
+    dutch: twee
+    english: two
+    pos: numeral
+  - id: numbers-04
+    dutch: drie
+    english: three
+    pos: numeral
+  - id: numbers-05
+    dutch: vier
+    english: four
+    pos: numeral
+  - id: numbers-06
+    dutch: vijf
+    english: five
+    pos: numeral
+    fact: The ij in vijf sounds a bit like the "ay" in English "say".
+  - id: numbers-07
+    dutch: zes
+    english: six
+    pos: numeral
+  - id: numbers-08
+    dutch: zeven
+    english: seven
+    pos: numeral
+  - id: numbers-09
+    dutch: acht
+    english: eight
+    pos: numeral
+    fact: The ch in acht is a throaty sound, like the ch in Scottish "loch".
+  - id: numbers-10
+    dutch: negen
+    english: nine
+    pos: numeral
+  - id: numbers-11
+    dutch: tien
+    english: ten
+    pos: numeral
+  - id: numbers-12
+    dutch: elf
+    english: eleven
+    pos: numeral
+    false-friend: elf
+  - id: numbers-13
+    dutch: twaalf
+    english: twelve
+    pos: numeral
+  - id: numbers-14
+    dutch: dertien
+    english: thirteen
+    pos: numeral
+  - id: numbers-15
+    dutch: twintig
+    english: twenty
+    pos: numeral
+  - id: numbers-16
+    dutch: eenentwintig
+    english: twenty-one
+    pos: numeral
+  - id: numbers-17
+    dutch: honderd
+    english: hundred
+    pos: numeral
+    cognate: true
+  - id: numbers-18
+    dutch: duizend
+    english: thousand
+    pos: numeral
+  - id: numbers-19
+    dutch: nummer
+    english: number
+    pos: noun
+    article: het
+    cognate: true
+    fact: Nummer is a number that names something, like a phone or house number. A number you count or calculate with is a getal.
+  - id: numbers-20
+    dutch: getal
+    english: number
+    pos: noun
+    article: het

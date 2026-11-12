@@ -1,0 +1,122 @@
+# Pack: Food
+# Each Card needs: id (unique, never reuse or change it), dutch, english, pos.
+# Nouns also get an article: de or het. Optional: cognate, false-friend, fact (and facts for the Pack).
+# How-to: docs/curator-guide.md
+title: Food
+facts:
+  - Many Dutch people eat bread with a topping for both breakfast and lunch, and have their hot meal in the evening.
+  - Gouda and Edam cheese are named after Dutch towns.
+cards:
+  - id: food-01
+    dutch: appel
+    english: apple
+    pos: noun
+    article: de
+    cognate: true
+    fact: Appeltaart (apple pie) is a Dutch favourite, often eaten with whipped cream.
+  - id: food-02
+    dutch: banaan
+    english: banana
+    pos: noun
+    article: de
+    cognate: true
+  - id: food-03
+    dutch: brood
+    english: bread
+    pos: noun
+    article: het
+  - id: food-04
+    dutch: kaas
+    english: cheese
+    pos: noun
+    article: de
+  - id: food-05
+    dutch: boter
+    english: butter
+    pos: noun
+    article: de
+    cognate: true
+  - id: food-06
+    dutch: melk
+    english: milk
+    pos: noun
+    article: de
+    cognate: true
+  - id: food-07
+    dutch: water
+    english: water
+    pos: noun
+    article: het
+    cognate: true
+  - id: food-08
+    dutch: thee
+    english: tea
+    pos: noun
+    article: de
+  - id: food-09
+    dutch: koffie
+    english: coffee
+    pos: noun
+    article: de
+    cognate: true
+  - id: food-10
+    dutch: ei
+    english: egg
+    pos: noun
+    article: het
+  - id: food-11
+    dutch: soep
+    english: soup
+    pos: noun
+    article: de
+    cognate: true
+  - id: food-12
+    dutch: vlees
+    english: meat
+    pos: noun
+    article: het
+  - id: food-13
+    dutch: aardappel
+    english: potato
+    pos: noun
+    article: de
+    fact: Aardappel means "earth apple", an apple that grows in the ground.
+  - id: food-14
+    dutch: groente
+    english: vegetables
+    pos: noun
+    article: de
+  - id: food-15
+    dutch: fruit
+    english: fruit
+    pos: noun
+    article: het
+    cognate: true
+  - id: food-16
+    dutch: ontbijt
+    english: breakfast
+    pos: noun
+    article: het
+  - id: food-17
+    dutch: hagelslag
+    english: [chocolate sprinkles, sprinkles]
+    pos: noun
+    article: de
+    fact: Hagelslag means "hailstorm". Dutch kids sprinkle it on buttered bread.
+  - id: food-18
+    dutch: stroopwafel
+    english: syrup waffle
+    pos: noun
+    article: de
+    fact: A stroopwafel is two thin waffles stuck together with syrup. Rest one on a hot drink to make it soft.
+  - id: food-19
+    dutch: patat
+    english: [fries, chips]
+    pos: noun
+    article: de
+    fact: In the north of the Netherlands fries are usually patat; in the south and in Belgium they are friet.
+  - id: food-20
+    dutch: lekker
+    english: [tasty, nice]
+    pos: adjective
+    fact: Lekker is used for anything nice, not just food. Lekker weer means nice weather.

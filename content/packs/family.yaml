@@ -1,0 +1,122 @@
+# Pack: Family & people
+# Each Card needs: id (unique, never reuse or change it), dutch, english, pos.
+# Nouns also get an article: de or het. Optional: cognate, false-friend, fact (and facts for the Pack).
+# How-to: docs/curator-guide.md
+title: Family & people
+facts:
+  - People in the Netherlands are among the tallest in the world.
+  - Dutch kids usually call their grandparents opa and oma.
+cards:
+  - id: family-01
+    dutch: moeder
+    english: mother
+    pos: noun
+    article: de
+    cognate: true
+  - id: family-02
+    dutch: vader
+    english: father
+    pos: noun
+    article: de
+    cognate: true
+  - id: family-03
+    dutch: ouder
+    english: parent
+    pos: noun
+    article: de
+    fact: Ouder also means "older". Your parents are your ouders.
+  - id: family-04
+    dutch: broer
+    english: brother
+    pos: noun
+    article: de
+  - id: family-05
+    dutch: zus
+    english: sister
+    pos: noun
+    article: de
+  - id: family-06
+    dutch: opa
+    english: [grandpa, grandfather]
+    pos: noun
+    article: de
+  - id: family-07
+    dutch: oma
+    english: [grandma, grandmother]
+    pos: noun
+    article: de
+  - id: family-08
+    dutch: oom
+    english: uncle
+    pos: noun
+    article: de
+  - id: family-09
+    dutch: tante
+    english: aunt
+    pos: noun
+    article: de
+  - id: family-10
+    dutch: neef
+    english: [cousin, nephew]
+    pos: noun
+    article: de
+    fact: Neef means both a boy cousin and a nephew. Dutch uses one word for both.
+  - id: family-11
+    dutch: nicht
+    english: [cousin, niece]
+    pos: noun
+    article: de
+  - id: family-12
+    dutch: kind
+    english: child
+    pos: noun
+    article: het
+    false-friend: kind
+    fact: The English word "kindergarten" (children's garden) comes from German, which uses kind for child too.
+  - id: family-13
+    dutch: baby
+    english: baby
+    pos: noun
+    article: de
+    cognate: true
+  - id: family-14
+    dutch: jongen
+    english: boy
+    pos: noun
+    article: de
+  - id: family-15
+    dutch: meisje
+    english: girl
+    pos: noun
+    article: het
+    fact: It is het meisje, not de, because every word ending in -je takes het.
+  - id: family-16
+    dutch: man
+    english: [man, husband]
+    pos: noun
+    article: de
+    cognate: true
+  - id: family-17
+    dutch: vrouw
+    english: [woman, wife]
+    pos: noun
+    article: de
+  - id: family-18
+    dutch: vriend
+    english: [friend, boyfriend]
+    pos: noun
+    article: de
+    cognate: true
+    fact: A girl who is a friend is a vriendin. Mijn vriend can also mean "my boyfriend".
+  - id: family-19
+    dutch: familie
+    english: [family, relatives]
+    pos: noun
+    article: de
+    cognate: true
+    fact: Familie is all your relatives. The family you live with at home is your gezin.
+  - id: family-20
+    dutch: gezin
+    english: family
+    pos: noun
+    article: het

@@ -4,6 +4,7 @@ import type { Personalisation, PersonalisationStore } from '../adapters/personal
 import { DEFAULT_THEME, THEMES, type ThemeId } from './themes';
 import { BackupSection, type BackupDeps } from '../backup/BackupSection';
 import type { Backup } from '../backup/backup';
+import { About } from '../about/About';
 
 const FALLBACK_NAME = 'Dutch';
 const MAX_NAME_LENGTH = 30;
@@ -11,11 +12,12 @@ const MAX_NAME_LENGTH = 30;
 /**
  * Wraps the app: on first launch the Learner names the app and picks a colour theme; after that the
  * app shows under a header with his chosen name and a way into settings to change either.
- * With `backup`, settings can also save a backup file and load one back.
+ * With `backup`, settings can also save a backup file and load one back. Settings also lead to the About screen.
  */
 export function PersonaliseGate({ store, backup, children }: { store: PersonalisationStore; backup?: BackupDeps; children: ComponentChildren }) {
   const [chosen, setChosen] = useState(() => store.load());
   const [inSettings, setInSettings] = useState(false);
+  const [inAbout, setInAbout] = useState(false);
   /** Counts loaded backups: a new count restarts the app on the restored progress. */
   const [restores, setRestores] = useState(0);
   const [justRestored, setJustRestored] = useState(false);
@@ -39,6 +41,7 @@ export function PersonaliseGate({ store, backup, children }: { store: Personalis
   };
   const openSettings = () => {
     setJustRestored(false);
+    setInAbout(false);
     setInSettings(true);
   };
 
@@ -62,11 +65,15 @@ export function PersonaliseGate({ store, backup, children }: { store: Personalis
           </button>
         )}
       </header>
-      {inSettings && (
+      {inSettings && inAbout && <About onBack={() => setInAbout(false)} />}
+      {inSettings && !inAbout && (
         <main class="personalise">
           <h2>Settings</h2>
           <PersonaliseForm initial={chosen} submitLabel="Save" onSubmit={save} onCancel={() => setInSettings(false)} />
           {backup && <BackupSection {...backup} personalisation={store} onRestored={restored} />}
+          <button type="button" class="quiet about-link" onClick={() => setInAbout(true)}>
+            About and credits
+          </button>
         </main>
       )}
       {justRestored && (

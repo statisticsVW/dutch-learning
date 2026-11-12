@@ -1,0 +1,121 @@
+# Pack: Animals
+# Each Card needs: id (unique, never reuse or change it), dutch, english, pos.
+# Nouns also get an article: de or het. Optional: cognate, false-friend, fact (and facts for the Pack).
+# How-to: docs/curator-guide.md
+title: Animals
+facts:
+  - Dutch animals make different sounds. A Dutch dog says waf waf, a duck says kwak kwak and a rooster says kukeleku.
+  - Young animals often get -je on the end, and every word with -je takes het. Een katje is a kitten, het katje.
+cards:
+  - id: animals-01
+    dutch: hond
+    english: dog
+    pos: noun
+    article: de
+    fact: Hond is related to the English word "hound".
+  - id: animals-02
+    dutch: kat
+    english: cat
+    pos: noun
+    article: de
+    cognate: true
+  - id: animals-03
+    dutch: paard
+    english: horse
+    pos: noun
+    article: het
+  - id: animals-04
+    dutch: koe
+    english: cow
+    pos: noun
+    article: de
+    cognate: true
+    fact: Black-and-white Friesian cows are named after Friesland, a Dutch province.
+  - id: animals-05
+    dutch: varken
+    english: pig
+    pos: noun
+    article: het
+  - id: animals-06
+    dutch: schaap
+    english: sheep
+    pos: noun
+    article: het
+  - id: animals-07
+    dutch: kip
+    english: chicken
+    pos: noun
+    article: de
+  - id: animals-08
+    dutch: vis
+    english: fish
+    pos: noun
+    article: de
+  - id: animals-09
+    dutch: vogel
+    english: bird
+    pos: noun
+    article: de
+    fact: Vogel is related to the English word "fowl".
+  - id: animals-10
+    dutch: muis
+    english: mouse
+    pos: noun
+    article: de
+    cognate: true
+  - id: animals-11
+    dutch: konijn
+    english: rabbit
+    pos: noun
+    article: het
+  - id: animals-12
+    dutch: eend
+    english: duck
+    pos: noun
+    article: de
+  - id: animals-13
+    dutch: uil
+    english: owl
+    pos: noun
+    article: de
+  - id: animals-14
+    dutch: beer
+    english: bear
+    pos: noun
+    article: de
+    false-friend: beer
+  - id: animals-15
+    dutch: leeuw
+    english: lion
+    pos: noun
+    article: de
+    fact: A golden lion with a crown is on the Dutch coat of arms.
+  - id: animals-16
+    dutch: olifant
+    english: elephant
+    pos: noun
+    article: de
+    cognate: true
+  - id: animals-17
+    dutch: slang
+    english: snake
+    pos: noun
+    article: de
+    false-friend: slang
+  - id: animals-18
+    dutch: spin
+    english: spider
+    pos: noun
+    article: de
+    false-friend: spin
+  - id: animals-19
+    dutch: kikker
+    english: frog
+    pos: noun
+    article: de
+  - id: animals-20
+    dutch: dier
+    english: animal
+    pos: noun
+    article: het
+    fact: Dier is related to English "deer". Long ago, "deer" meant any animal in English too.

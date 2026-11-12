@@ -5,6 +5,8 @@
 title: Hello & being polite
 facts:
   - Dutch has a friendly "you" (je) and a polite "you" (u). Dank je is for friends; dank u is for strangers and older people.
+  - Close friends and family in the Netherlands often greet each other with three kisses on the cheek.
+  - Dutch people are known for being direct. Saying exactly what you mean is seen as honest, not rude.
 cards:
   - id: hello-01
     dutch: hallo
@@ -34,3 +36,76 @@ cards:
     english: cheeky
     pos: adjective
     false-friend: brutal
+  - id: hello-07
+    dutch: hoi
+    english: hi
+    pos: interjection
+  - id: hello-08
+    dutch: doei
+    english: bye
+    pos: interjection
+    fact: Doei is a very casual bye. Lots of Dutch people say it twice, doei doei!
+  - id: hello-09
+    dutch: tot ziens
+    english: goodbye
+    pos: phrase
+    fact: Tot ziens means "until seeing". Tot morgen is "see you tomorrow".
+  - id: hello-10
+    dutch: dank u wel
+    english: [thank you very much, thank you]
+    pos: phrase
+  - id: hello-11
+    dutch: graag gedaan
+    english: you're welcome
+    pos: phrase
+    fact: Graag gedaan means "gladly done".
+  - id: hello-12
+    dutch: goedemiddag
+    english: good afternoon
+    pos: phrase
+  - id: hello-13
+    dutch: goedenavond
+    english: good evening
+    pos: phrase
+  - id: hello-14
+    dutch: welterusten
+    english: [good night, sleep well]
+    pos: phrase
+  - id: hello-15
+    dutch: hoe gaat het?
+    english: how are you?
+    pos: phrase
+    fact: It means "how goes it?". A friendly answer is goed, en met jou? (good, and you?).
+  - id: hello-16
+    dutch: goed
+    english: [good, well]
+    pos: adjective
+    cognate: true
+  - id: hello-17
+    dutch: ja
+    english: yes
+    pos: interjection
+  - id: hello-18
+    dutch: nee
+    english: no
+    pos: interjection
+  - id: hello-19
+    dutch: sorry
+    english: sorry
+    pos: interjection
+    cognate: true
+  - id: hello-20
+    dutch: welkom
+    english: welcome
+    pos: interjection
+    cognate: true
+  - id: hello-21
+    dutch: meneer
+    english: [sir, Mr.]
+    pos: noun
+    article: de
+  - id: hello-22
+    dutch: mevrouw
+    english: [madam, Mrs., Ms.]
+    pos: noun
+    article: de

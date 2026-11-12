@@ -360,7 +360,7 @@ function isText(value: unknown): value is string {
 }
 
 /** An id-friendly form of a Dutch word: "dank je wel" → "dank-je-wel", "één" → "een". */
-function slugOf(dutch: string): string {
+export function slugOf(dutch: string): string {
   return dutch
     .trim()
     .toLowerCase()

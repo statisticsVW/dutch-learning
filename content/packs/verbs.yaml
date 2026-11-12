@@ -1,0 +1,102 @@
+# Pack: Everyday verbs
+# Each Card needs: id (unique, never reuse or change it), dutch, english, pos.
+# Nouns also get an article: de or het. Optional: cognate, false-friend, fact (and facts for the Pack).
+# How-to: docs/curator-guide.md
+title: Everyday verbs
+facts:
+  - Most Dutch verbs end in -en in their dictionary form, like spelen, lezen and eten.
+  - In a Dutch sentence the verb comes second. Morgen ga ik is "tomorrow go I".
+cards:
+  - id: verbs-01
+    dutch: zijn
+    english: to be
+    pos: verb
+    fact: Zijn also means "his", as in zijn boek (his book).
+  - id: verbs-02
+    dutch: hebben
+    english: to have
+    pos: verb
+  - id: verbs-03
+    dutch: gaan
+    english: to go
+    pos: verb
+  - id: verbs-04
+    dutch: komen
+    english: to come
+    pos: verb
+    cognate: true
+  - id: verbs-05
+    dutch: eten
+    english: to eat
+    pos: verb
+    fact: Eten is also a noun, het eten, which means food.
+  - id: verbs-06
+    dutch: drinken
+    english: to drink
+    pos: verb
+    cognate: true
+  - id: verbs-07
+    dutch: slapen
+    english: to sleep
+    pos: verb
+  - id: verbs-08
+    dutch: lopen
+    english: to walk
+    pos: verb
+    fact: In the Netherlands lopen means to walk; to run is rennen. In Belgium lopen often means to run.
+  - id: verbs-09
+    dutch: spelen
+    english: to play
+    pos: verb
+  - id: verbs-10
+    dutch: lezen
+    english: to read
+    pos: verb
+  - id: verbs-11
+    dutch: schrijven
+    english: to write
+    pos: verb
+  - id: verbs-12
+    dutch: praten
+    english: to talk
+    pos: verb
+  - id: verbs-13
+    dutch: zeggen
+    english: to say
+    pos: verb
+  - id: verbs-14
+    dutch: zien
+    english: to see
+    pos: verb
+  - id: verbs-15
+    dutch: horen
+    english: to hear
+    pos: verb
+  - id: verbs-16
+    dutch: weten
+    english: to know
+    pos: verb
+    fact: Weten is knowing a fact. Knowing a person or a place is kennen.
+  - id: verbs-17
+    dutch: kunnen
+    english: [can, to be able to]
+    pos: verb
+  - id: verbs-18
+    dutch: maken
+    english: to make
+    pos: verb
+    cognate: true
+  - id: verbs-19
+    dutch: leren
+    english: [to learn, to teach]
+    pos: verb
+    fact: Leren means both to learn and to teach. Ik leer Nederlands means "I am learning Dutch".
+  - id: verbs-20
+    dutch: kijken
+    english: [to look, to watch]
+    pos: verb
+  - id: verbs-21
+    dutch: worden
+    english: to become
+    pos: verb
+    false-friend: word
