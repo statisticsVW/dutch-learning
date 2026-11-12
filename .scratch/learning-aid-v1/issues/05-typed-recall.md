@@ -8,9 +8,9 @@ Spec: `.scratch/learning-aid-v1/spec.md`. Glossary: `CONTEXT.md`.
 
 **Status:** ready-for-agent
 
-- [ ] Engine tests: mode progression from multiple choice to typed recall by stability
-- [ ] Engine tests: case, diacritic and whitespace insensitivity
-- [ ] Engine tests: "almost" for a wrong or missing article, scheduled as Again
-- [ ] Engine tests: fast correct answer graded Easy (answer time from the fake clock)
-- [ ] UI flow test: typing "het appel" for "de appel" shows "almost" and the correct article
+- [x] Engine tests: mode progression from multiple choice to typed recall by stability
+- [x] Engine tests: case, diacritic and whitespace insensitivity
+- [x] Engine tests: "almost" for a wrong or missing article, scheduled as Again
+- [x] Engine tests: fast correct answer graded Easy (answer time from the fake clock)
+- [x] UI flow test: typing "het appel" for "de appel" shows "almost" and the correct article
 - [ ] The answer field is comfortable on the iPhone keyboard (autocorrect and auto-capitalise off)

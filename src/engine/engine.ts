@@ -12,6 +12,10 @@ export const REVIEW_SECONDS_PER_CARD = 10;
 /** A gap since the last Burst of at least this long earns a welcome back. */
 export const WELCOME_BACK_AFTER_DAYS = 7;
 const DAY_MS = 24 * 60 * 60 * 1000;
+/** Once the scheduler expects a Card to stay remembered this many days, it is asked by typing. */
+export const RECALL_AFTER_STABILITY_DAYS = 7;
+/** A correct typed answer within this many seconds of the prompt appearing is graded Easy. */
+export const FAST_RECALL_SECONDS = 8;
 
 /** What the engine remembers about one Card. Stored as JSON, keyed by Card id. */
 export type CardProgress = {
@@ -27,20 +31,30 @@ export function emptyProgress(): Progress {
   return { version: 1, cards: {} };
 }
 
-/** How a prompt asks: recognise (read the Dutch) or listen (hear it); both pick the English meaning. */
-export type PracticeMode = 'recognise' | 'listen';
-/** `dutch` is shown for recognise, and spoken (not shown) for listen. */
+/**
+ * How a prompt asks. New and weak Cards are multiple choice: recognise (read the Dutch) or
+ * listen (hear it), then pick the English. Strong Cards are recall: see the English, type the Dutch.
+ */
+export type PracticeMode = 'recognise' | 'listen' | 'recall';
+/**
+ * `dutch` (with its article) is shown for recognise, spoken for listen, and is the answer for recall,
+ * so it is never shown before a recall answer. `english` is the recall cue; `options` is empty for recall.
+ */
 export type Prompt = {
   kind: 'prompt';
   cardId: string;
   mode: PracticeMode;
   dutch: string;
+  english: string;
   options: string[];
   /** The Card's Cognate / False-friend flag and Fact, when it has any. */
   notes?: CardNotes;
 };
 export type GroupDone = { kind: 'group-done'; canDoMore: boolean; /** After new Cards: one of the Pack's Facts, when it has any. */ fact?: Fact };
-export type AnswerResult = { verdict: 'correct' | 'wrong'; correctAnswer: string; progress: Progress };
+/** "almost": a typed noun with the right word but a wrong or missing article. */
+export type Verdict = 'correct' | 'almost' | 'wrong';
+/** `correctAnswer` is the English meaning for multiple choice, and the Dutch with its article for recall. */
+export type AnswerResult = { verdict: Verdict; correctAnswer: string; progress: Progress };
 export type PackSummary = { id: string; title: string; learned: number; total: number };
 /** Cards due for review, and roughly how many minutes reviewing them all takes. */
 export type FadingSummary = { count: number; minutes: number };
@@ -53,8 +67,8 @@ export type Engine = {
   /** Starts reviewing every fading Card, most useful first. Optional: the Learner can skip it. */
   startReview(): void;
   nextPrompt(): Prompt | GroupDone;
-  /** Answers the current prompt with the chosen option. */
-  answer(option: string): AnswerResult;
+  /** Answers the current prompt: the chosen option, or the typed Dutch for recall. */
+  answer(response: string): AnswerResult;
   progress(): Progress;
 };
 
@@ -78,6 +92,8 @@ export function createEngine({ packs, progress: saved, clock, random = Math.rand
   let newCardsPackId: string | undefined;
   let queue: Card[] = [];
   let current: Prompt | undefined;
+  /** When the current prompt was first shown, to tell a fast typed answer from a slow one. */
+  let shownAt = 0;
   // Decided once, when the Burst starts: answering during this Burst doesn't take it away.
   const welcomeBack = gapSinceLastBurst(progress, clock.now()) >= WELCOME_BACK_AFTER_DAYS * DAY_MS;
 
@@ -98,29 +114,26 @@ export function createEngine({ packs, progress: saved, clock, random = Math.rand
   const canDoMore = () => newCardsPackId !== undefined && introducedThisBurst < MAX_NEW_CARDS_PER_BURST && unseen(findPack(newCardsPackId)).length > 0;
 
   /**
-   * A Card is first met written down (recognise). After that, recognise and listen take turns,
-   * so new and weak Cards are both read and heard.
+   * Strong Cards are typed. Weaker ones are first met written down (recognise); after that,
+   * recognise and listen take turns, so they are both read and heard.
    */
   function modeFor(card: Card): PracticeMode {
-    const reps = progress.cards[card.id]?.memory.reps ?? 0;
-    return audioAvailable() && reps % 2 === 1 ? 'listen' : 'recognise';
+    const memory = progress.cards[card.id]?.memory;
+    if (memory && memory.stability >= RECALL_AFTER_STABILITY_DAYS) return 'recall';
+    return audioAvailable() && (memory?.reps ?? 0) % 2 === 1 ? 'listen' : 'recognise';
   }
 
   function buildPrompt(card: Card): Prompt {
     const answer = meaningOf(card);
+    const mode = modeFor(card);
+    const base = { kind: 'prompt', cardId: card.id, mode, dutch: displayDutch(card), english: card.english.join(', '), ...notesOf(card) } as const;
+    if (mode === 'recall') return { ...base, options: [] };
     const pack = packs.find((p) => p.cards.includes(card))!;
     const others = (cards: Card[]) => shuffle(unique(cards.map(meaningOf).filter((e) => e !== answer)), random);
     const fromPack = others(pack.cards);
     const fromElsewhere = others(allCards).filter((e) => !fromPack.includes(e));
     const distractors = [...fromPack, ...fromElsewhere].slice(0, OPTIONS_PER_PROMPT - 1);
-    return {
-      kind: 'prompt',
-      cardId: card.id,
-      mode: modeFor(card),
-      dutch: displayDutch(card),
-      options: shuffle([answer, ...distractors], random),
-      ...notesOf(card),
-    };
+    return { ...base, options: shuffle([answer, ...distractors], random) };
   }
 
   /** One of the Pack's Facts, a different one after each group of five new Cards. */
@@ -157,23 +170,36 @@ export function createEngine({ packs, progress: saved, clock, random = Math.rand
 
     nextPrompt() {
       if (queue.length === 0) return { kind: 'group-done', canDoMore: canDoMore(), ...packFact() };
-      current ??= buildPrompt(queue[0]);
+      if (!current) {
+        current = buildPrompt(queue[0]);
+        shownAt = clock.now().getTime();
+      }
       return current;
     },
 
-    answer(option) {
-      const card = queue.shift();
+    answer(response) {
+      const card = queue[0];
       if (!card) throw new Error('There is no prompt to answer.');
+      if (!current) {
+        current = buildPrompt(card);
+        shownAt = clock.now().getTime();
+      }
+      const prompt = current;
+      queue.shift();
       current = undefined;
-      const correctAnswer = meaningOf(card);
-      const correct = option === correctAnswer;
       const now = clock.now();
+      const recall = prompt.mode === 'recall';
+      const correctAnswer = recall ? prompt.dutch : meaningOf(card);
+      const verdict: Verdict = recall ? checkTyped(card, response) : response === correctAnswer ? 'correct' : 'wrong';
+      const fast = now.getTime() - shownAt <= FAST_RECALL_SECONDS * 1000;
+      const rating = verdict !== 'correct' ? Rating.Again : recall && fast ? Rating.Easy : Rating.Good;
+
       const before = progress.cards[card.id];
       if (!before) introducedThisBurst++;
-      const scheduled = scheduler.next(before ? toFsrs(before) : createEmptyCard(now), now, correct ? Rating.Good : Rating.Again).card;
-      progress.cards[card.id] = fromFsrs(scheduled, correct);
-      if (!correct) queue.push(card);
-      return { verdict: correct ? 'correct' : 'wrong', correctAnswer, progress: structuredClone(progress) };
+      const scheduled = scheduler.next(before ? toFsrs(before) : createEmptyCard(now), now, rating).card;
+      progress.cards[card.id] = fromFsrs(scheduled, verdict === 'correct');
+      if (verdict !== 'correct') queue.push(card);
+      return { verdict, correctAnswer, progress: structuredClone(progress) };
     },
 
     progress: () => structuredClone(progress),
@@ -220,6 +246,34 @@ function fromFsrs(card: FsrsCard, lastCorrect: boolean): CardProgress {
   };
   if (card.last_review) memory.lastReview = new Date(card.last_review).toISOString();
   return { due: new Date(card.due).toISOString(), lastCorrect, memory };
+}
+
+/**
+ * Checks typed Dutch forgivingly: case, accents and spacing don't matter. For a noun, the right
+ * word with a wrong or missing article is "almost".
+ */
+function checkTyped(card: Card, typed: string): Verdict {
+  const given = normalise(typed);
+  const word = normalise(card.dutch);
+  if (given === normalise(displayDutch(card))) return 'correct';
+  const withoutArticle = given.replace(/^(de|het|'t) /, '');
+  if (card.article && withoutArticle === word) return 'almost';
+  return 'wrong';
+}
+
+/**
+ * What is left once keyboard details are set aside: "  Het  Café! " → "het cafe".
+ * NFKD also splits the ĳ ligature into i + j; curly apostrophes (the iPhone default) become straight.
+ */
+function normalise(text: string): string {
+  return text
+    .normalize('NFKD')
+    .replace(/\p{M}/gu, '')
+    .replace(/[‘’`´]/g, "'")
+    .replace(/[.,!?¿¡;:"“”]/g, ' ')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ');
 }
 
 /** The meaning a recognise prompt asks for: the Card's first English meaning. */
