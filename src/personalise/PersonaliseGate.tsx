@@ -16,8 +16,9 @@ const MAX_NAME_LENGTH = 30;
  */
 export function PersonaliseGate({ store, backup, children }: { store: PersonalisationStore; backup?: BackupDeps; children: ComponentChildren }) {
   const [chosen, setChosen] = useState(() => store.load());
-  const [inSettings, setInSettings] = useState(false);
-  const [inAbout, setInAbout] = useState(false);
+  /** What shows instead of the app, if anything. */
+  const [screen, setScreen] = useState<'app' | 'settings' | 'about'>('app');
+  const inSettings = screen !== 'app';
   /** Counts loaded backups: a new count restarts the app on the restored progress. */
   const [restores, setRestores] = useState(0);
   const [justRestored, setJustRestored] = useState(false);
@@ -30,19 +31,18 @@ export function PersonaliseGate({ store, backup, children }: { store: Personalis
   const save = (personalisation: Personalisation) => {
     store.save(personalisation);
     setChosen(personalisation);
-    setInSettings(false);
+    setScreen('app');
   };
 
   const restored = (loaded: Backup) => {
     setChosen(loaded.personalisation);
     setRestores((n) => n + 1);
     setJustRestored(true);
-    setInSettings(false);
+    setScreen('app');
   };
   const openSettings = () => {
     setJustRestored(false);
-    setInAbout(false);
-    setInSettings(true);
+    setScreen('settings');
   };
 
   if (!chosen) {
@@ -65,13 +65,13 @@ export function PersonaliseGate({ store, backup, children }: { store: Personalis
           </button>
         )}
       </header>
-      {inSettings && inAbout && <About onBack={() => setInAbout(false)} />}
-      {inSettings && !inAbout && (
+      {screen === 'about' && <About onBack={() => setScreen('settings')} />}
+      {screen === 'settings' && (
         <main class="personalise">
           <h2>Settings</h2>
-          <PersonaliseForm initial={chosen} submitLabel="Save" onSubmit={save} onCancel={() => setInSettings(false)} />
+          <PersonaliseForm initial={chosen} submitLabel="Save" onSubmit={save} onCancel={() => setScreen('app')} />
           {backup && <BackupSection {...backup} personalisation={store} onRestored={restored} />}
-          <button type="button" class="quiet about-link" onClick={() => setInAbout(true)}>
+          <button type="button" class="quiet about-link" onClick={() => setScreen('about')}>
             About and credits
           </button>
         </main>

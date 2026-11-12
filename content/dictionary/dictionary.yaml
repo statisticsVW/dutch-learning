@@ -29,7 +29,7 @@ entries:
   - { id: dict-aanstellen, dutch: aanstellen, english: [ to appoint, to commission, to name for a role ], pos: verb }
   - { id: dict-aantal, dutch: aantal, english: [ countable amount, number, few ], pos: noun, article: het }
   - { id: dict-aantekening, dutch: aantekening, english: note, pos: noun, article: de }
-  - { id: dict-aantrekkelijk, dutch: aantrekkelijk, english: [ attractive, beautiful ], pos: adjective }
+  - { id: dict-aantrekkelijk, dutch: aantrekkelijk, english: beautiful, pos: adjective }
   - { id: dict-aantrekken, dutch: aantrekken, english: [ to attract, to put on, to take heed ], pos: verb }
   - { id: dict-aanval, dutch: aanval, english: [ act of aggression, sudden convulsion ], pos: noun, article: de }
   - { id: dict-aanvallen, dutch: aanvallen, english: to attack, pos: verb }
@@ -103,10 +103,10 @@ entries:
   - { id: dict-allebei, dutch: allebei, english: both, pos: pronoun }
   - { id: dict-alleen, dutch: alleen, english: [ only, exclusively, just ], pos: adverb }
   - { id: dict-alles, dutch: alles, english: everything, pos: pronoun }
-  - { id: dict-als, dutch: als, english: [ if, when, as though ], pos: conjunction }
+  - { id: dict-als, dutch: als, english: [ if, when ], pos: conjunction }
   - { id: dict-als-preposition, dutch: als, english: [ like, as, than ], pos: preposition }
-  - { id: dict-alsof, dutch: alsof, english: as if, pos: conjunction }
   - { id: dict-alstublieft, dutch: alstublieft, english: please, pos: interjection }
+  - { id: dict-altaar, dutch: altaar, english: altar, pos: noun, article: het }
   - { id: dict-altijd, dutch: altijd, english: always, pos: adverb }
   - { id: dict-alvast, dutch: alvast, english: [ already, in advance ], pos: adverb }
   - { id: dict-alweer, dutch: alweer, english: [ once again, once more, already ], pos: adverb }
@@ -114,7 +114,7 @@ entries:
   - { id: dict-anders-adjective, dutch: anders, english: [ otherwise, differently ], pos: adjective }
   - { id: dict-anders, dutch: anders, english: [ otherwise, differently ], pos: adverb }
   - { id: dict-angst, dutch: angst, english: [ fear, fright, anxiety ], pos: noun, article: de }
-  - { id: dict-angstig, dutch: angstig, english: [ fearful, anxious ], pos: adjective }
+  - { id: dict-angstig, dutch: angstig, english: anxious, pos: adjective }
   - { id: dict-antwoord, dutch: antwoord, english: answer, pos: noun, article: het }
   - { id: dict-antwoorden, dutch: antwoorden, english: [ to answer, to reply ], pos: verb }
   - { id: dict-apart, dutch: apart, english: [ separate, unusual ], pos: adjective }
@@ -145,7 +145,7 @@ entries:
   - { id: dict-avond, dutch: avond, english: [ evening, night ], pos: noun, article: de }
   - { id: dict-avondeten, dutch: avondeten, english: [ supper, dinner, evening meal ], pos: noun, article: het }
   - { id: dict-avontuur, dutch: avontuur, english: adventure, pos: noun, article: het }
-  - { id: dict-avontuurlijk, dutch: avontuurlijk, english: [ like an adventure, dangerous, eventful ], pos: adjective }
+  - { id: dict-avontuurlijk, dutch: avontuurlijk, english: [ eventful, exciting, daring ], pos: adjective }
   - { id: dict-baan, dutch: baan, english: [ track, lane, job ], pos: noun, article: de }
   - { id: dict-baard, dutch: baard, english: [ beard, key bit, awn ], pos: noun, article: de }
   - { id: dict-baas, dutch: baas, english: [ boss, chief, superior ], pos: noun, article: de }
@@ -155,7 +155,7 @@ entries:
   - { id: dict-badkamer, dutch: badkamer, english: bathroom, pos: noun, article: de }
   - { id: dict-bagage, dutch: bagage, english: [ baggage, load ], pos: noun, article: de }
   - { id: dict-bah, dutch: bah, english: [ bah, yuck ], pos: interjection }
-  - { id: dict-bak, dutch: bak, english: [ container, such as a box, crate ], pos: noun, article: de }
+  - { id: dict-bak, dutch: bak, english: [ container, crate, large amount ], pos: noun, article: de }
   - { id: dict-bakken, dutch: bakken, english: [ to bake, to pan-fry ], pos: verb }
   - { id: dict-bakker, dutch: bakker, english: baker, pos: noun, article: de }
   - { id: dict-bal, dutch: bal, english: [ testicle, pass ], pos: noun, article: de }
@@ -190,7 +190,7 @@ entries:
   - { id: dict-bedroefd, dutch: bedroefd, english: [ sorrowful, sad, little ], pos: adjective }
   - { id: dict-bedroeven, dutch: bedroeven, english: [ to grieve, to sadden ], pos: verb }
   - { id: dict-beeld, dutch: beeld, english: [ image, statue, impression ], pos: noun, article: het }
-  - { id: dict-been, dutch: been, english: [ leg, limb of a person, horse and certain objects ], pos: noun, article: het }
+  - { id: dict-been, dutch: been, english: [ leg, limb of a person, side ], pos: noun, article: het }
   - { id: dict-beer, dutch: beer, english: [ bear, boar, buttress ], pos: noun, article: de }
   - { id: dict-beest, dutch: beest, english: [ animal, beast, cruel ], pos: noun, article: het }
   - { id: dict-beet, dutch: beet, english: bite, pos: noun, article: de }
@@ -222,7 +222,7 @@ entries:
   - { id: dict-beleefd, dutch: beleefd, english: polite, pos: adjective }
   - { id: dict-beleid, dutch: beleid, english: [ policy, strategy, course of action ], pos: noun, article: het }
   - { id: dict-beleven, dutch: beleven, english: [ to experience, to live through, to go through ], pos: verb }
-  - { id: dict-bellen, dutch: bellen, english: [ to ring, to like using a bell, to call ], pos: verb }
+  - { id: dict-bellen, dutch: bellen, english: [ to ring, to call ], pos: verb }
   - { id: dict-belofte, dutch: belofte, english: [ promise, vow, pledge ], pos: noun, article: de }
   - { id: dict-belonen, dutch: belonen, english: to reward, pos: verb }
   - { id: dict-beloning, dutch: beloning, english: reward, pos: noun, article: de }
@@ -232,7 +232,7 @@ entries:
   - { id: dict-benauwd, dutch: benauwd, english: [ stuffy, poorly ventilated, cramped ], pos: adjective }
   - { id: dict-bende, dutch: bende, english: [ gang, squad ], pos: noun, article: de }
   - { id: dict-beneden, dutch: beneden, english: [ under, below, beneath ], pos: preposition }
-  - { id: dict-benieuwd, dutch: benieuwd, english: [ longing to see, hear or understand, curious ], pos: adjective }
+  - { id: dict-benieuwd, dutch: benieuwd, english: [ longing to see, curious ], pos: adjective }
   - { id: dict-benzine, dutch: benzine, english: [ petrol, gas, gasoline ], pos: noun, article: de }
   - { id: dict-beoordelen, dutch: beoordelen, english: [ to evaluate, to assess, to judge ], pos: verb }
   - { id: dict-bepaald, dutch: bepaald, english: [ certain, specific, definite ], pos: adjective }
@@ -390,7 +390,7 @@ entries:
   - { id: dict-bovendien, dutch: bovendien, english: [ moreover, furthermore, besides ], pos: adverb }
   - { id: dict-bovenop, dutch: bovenop, english: [ on top, above, in addition ], pos: adverb }
   - { id: dict-braaf, dutch: braaf, english: [ well-behaved, obedient ], pos: adjective }
-  - { id: dict-brand, dutch: brand, english: [ destructive, catastrophic fire ], pos: noun, article: de }
+  - { id: dict-brand, dutch: brand, english: catastrophic fire, pos: noun, article: de }
   - { id: dict-branden, dutch: branden, english: [ to burn, to set aflame, to be alight ], pos: verb }
   - { id: dict-brandkast, dutch: brandkast, english: [ safe, strongbox ], pos: noun, article: de }
   - { id: dict-brandstof, dutch: brandstof, english: fuel, pos: noun, article: de }
@@ -419,7 +419,7 @@ entries:
   - { id: dict-buiging, dutch: buiging, english: [ bow, kowtow, declension ], pos: noun, article: de }
   - { id: dict-buik, dutch: buik, english: [ belly, paunch ], pos: noun, article: de }
   - { id: dict-buis, dutch: buis, english: [ pipe, duct, television ], pos: noun, article: de }
-  - { id: dict-buit, dutch: buit, english: [ the spoil, booty taken by violence, as in war ], pos: noun, article: de }
+  - { id: dict-buit, dutch: buit, english: [ the spoil, booty taken by violence, the loot ], pos: noun, article: de }
   - { id: dict-buiten, dutch: buiten, english: [ outside, out of ], pos: preposition }
   - { id: dict-buitenkant, dutch: buitenkant, english: the outer side, pos: noun, article: de }
   - { id: dict-buitenland, dutch: buitenland, english: [ all foreign countries, collectively ], pos: noun, article: het }
@@ -495,7 +495,7 @@ entries:
   - { id: dict-dan, dutch: dan, english: [ then, at that time ], pos: adverb }
   - { id: dict-dan-conjunction, dutch: dan, english: than, pos: conjunction }
   - { id: dict-dank-je-wel, dutch: dank je wel, english: thank you very much, pos: phrase }
-  - { id: dict-dankbaar, dutch: dankbaar, english: [ thankful, grateful, gratifying ], pos: adjective }
+  - { id: dict-dankbaar, dutch: dankbaar, english: [ grateful, gratifying ], pos: adjective }
   - { id: dict-danken, dutch: danken, english: to thank, pos: verb }
   - { id: dict-dankzij, dutch: dankzij, english: thanks to, pos: preposition }
   - { id: dict-dans, dutch: dans, english: dance, pos: noun, article: de }
@@ -658,7 +658,7 @@ entries:
   - { id: dict-element, dutch: element, english: element, pos: noun, article: het }
   - { id: dict-elf-noun, dutch: elf, english: [ the number eleven, elf ], pos: noun, article: de }
   - { id: dict-elf, dutch: elf, english: eleven, pos: numeral }
-  - { id: dict-elftal, dutch: elftal, english: [ group of eleven, usually human beings ], pos: noun, article: het }
+  - { id: dict-elftal, dutch: elftal, english: group of eleven, pos: noun, article: het }
   - { id: dict-elk, dutch: elk, english: [ each, everyone ], pos: pronoun }
   - { id: dict-elkaar, dutch: elkaar, english: [ each other, one another ], pos: pronoun }
   - { id: dict-ellende, dutch: ellende, english: misery, pos: noun, article: de }
@@ -775,7 +775,7 @@ entries:
   - { id: dict-gegeven, dutch: gegeven, english: [ datum, given fact, parameter ], pos: noun, article: het }
   - { id: dict-geheim-adjective, dutch: geheim, english: [ secret, secretly ], pos: adjective }
   - { id: dict-geheim, dutch: geheim, english: secret, pos: noun, article: het }
-  - { id: dict-geheimzinnig, dutch: geheimzinnig, english: [ secretive, mysterious ], pos: adjective }
+  - { id: dict-geheimzinnig, dutch: geheimzinnig, english: mysterious, pos: adjective }
   - { id: dict-gehoorzamen, dutch: gehoorzamen, english: to obey, pos: verb }
   - { id: dict-gek, dutch: gek, english: [ crazy, mad, ludicrous ], pos: adjective }
   - { id: dict-gek-noun, dutch: gek, english: [ lunatic, madman, cowl ], pos: noun, article: de }
@@ -813,6 +813,7 @@ entries:
   - { id: dict-geslacht, dutch: geslacht, english: [ sex, gender, grammatical gender ], pos: noun, article: het }
   - { id: dict-gespannen, dutch: gespannen, english: tense, pos: adjective }
   - { id: dict-gesprek, dutch: gesprek, english: [ talk, verbal conversation ], pos: noun, article: het }
+  - { id: dict-gestalte, dutch: gestalte, english: [ figure, shape, appearance ], pos: noun, article: de }
   - { id: dict-getal, dutch: getal, english: [ expressed number, the number ], pos: noun, article: het }
   - { id: dict-geur, dutch: geur, english: [ scent, smell, odour ], pos: noun, article: de }
   - { id: dict-gevaar, dutch: gevaar, english: [ danger, peril ], pos: noun, article: het }
@@ -826,7 +827,7 @@ entries:
   - { id: dict-gevoelen, dutch: gevoelen, english: to feel, pos: verb }
   - { id: dict-gevolg, dutch: gevolg, english: [ consequence, result, entourage ], pos: noun, article: het }
   - { id: dict-geweer, dutch: geweer, english: [ rifle, gun ], pos: noun, article: het }
-  - { id: dict-geweldig, dutch: geweldig, english: [ tremendous, enormous, awesome ], pos: adjective }
+  - { id: dict-geweldig, dutch: geweldig, english: [ enormous, awesome ], pos: adjective }
   - { id: dict-gewennen, dutch: gewennen, english: [ to feel comfortable, to get used to ], pos: verb }
   - { id: dict-gewicht, dutch: gewicht, english: weight, pos: noun, article: het }
   - { id: dict-gewinnen, dutch: gewinnen, english: to acquire, pos: verb }
@@ -838,7 +839,7 @@ entries:
   - { id: dict-gezondheid, dutch: gezondheid, english: health, pos: noun, article: de }
   - { id: dict-gids, dutch: gids, english: guide, pos: noun, article: de }
   - { id: dict-gier, dutch: gier, english: [ vulture, monster, human vulture ], pos: noun, article: de }
-  - { id: dict-gierig, dutch: gierig, english: [ desirous, covetous, greedy ], pos: adjective }
+  - { id: dict-gierig, dutch: gierig, english: [ covetous, greedy ], pos: adjective }
   - { id: dict-gieten, dutch: gieten, english: [ to pour, to pour down ], pos: verb }
   - { id: dict-gil, dutch: gil, english: scream, pos: noun, article: de }
   - { id: dict-gillen, dutch: gillen, english: [ to yell, to scream ], pos: verb }
@@ -895,7 +896,7 @@ entries:
   - { id: dict-grootouder, dutch: grootouder, english: [ grandparent, parent of someone's parent ], pos: noun, article: de }
   - { id: dict-grootvader, dutch: grootvader, english: grandfather, pos: noun, article: de }
   - { id: dict-gulden, dutch: gulden, english: the guilder, pos: noun, article: de }
-  - { id: dict-guur, dutch: guur, english: [ chillingly cold, rainy and windy ], pos: adjective }
+  - { id: dict-guur, dutch: guur, english: chillingly cold, pos: adjective }
   - { id: dict-ha, dutch: ha, english: ha, pos: interjection }
   - { id: dict-haai, dutch: haai, english: [ shark, fish of the superorder, ruthless person ], pos: noun, article: de }
   - { id: dict-haak, dutch: haak, english: [ hook, bracket ], pos: noun, article: de }
@@ -1092,7 +1093,7 @@ entries:
   - { id: dict-jacht, dutch: jacht, english: [ hunt, hunting, chase ], pos: noun, article: de }
   - { id: dict-jagen, dutch: jagen, english: [ to hunt, to tug, to move quickly ], pos: verb }
   - { id: dict-jager, dutch: jager, english: [ hunter, destroyer, fighter ], pos: noun, article: de }
-  - { id: dict-jaloers, dutch: jaloers, english: [ jealous, envious ], pos: adjective }
+  - { id: dict-jaloers, dutch: jaloers, english: envious, pos: adjective }
   - { id: dict-jammer, dutch: jammer, english: [ unfortunate, sad, too bad ], pos: adjective }
   - { id: dict-jammeren, dutch: jammeren, english: [ to yammer, to whine ], pos: verb }
   - { id: dict-jarenlang, dutch: jarenlang, english: [ lasting for years, yearslong, for years ], pos: adjective }
@@ -1140,7 +1141,7 @@ entries:
   - { id: dict-kar, dutch: kar, english: cart, pos: noun, article: de }
   - { id: dict-kassa, dutch: kassa, english: [ cash desk, checkout, box office ], pos: noun, article: de }
   - { id: dict-kast, dutch: kast, english: [ cupboard, closet, wardrobe ], pos: noun, article: de }
-  - { id: dict-kasteel, dutch: kasteel, english: [ castle, either palatial or fortified, any large ], pos: noun, article: het }
+  - { id: dict-kasteel, dutch: kasteel, english: [ castle, any large ], pos: noun, article: het }
   - { id: dict-kat, dutch: kat, english: cat, pos: noun, article: de }
   - { id: dict-kater, dutch: kater, english: [ tomcat, tom, male cat ], pos: noun, article: de }
   - { id: dict-katholiek, dutch: katholiek, english: Catholic, pos: adjective }
@@ -1225,7 +1226,7 @@ entries:
   - { id: dict-koffie, dutch: koffie, english: coffee, pos: noun, article: de }
   - { id: dict-kok, dutch: kok, english: [ cook, chef ], pos: noun, article: de }
   - { id: dict-koken, dutch: koken, english: [ to cook, to boil, to seethe ], pos: verb }
-  - { id: dict-kolonie, dutch: kolonie, english: [ colony, dependent human settlement, state or territory ], pos: noun, article: de }
+  - { id: dict-kolonie, dutch: kolonie, english: [ colony, dependent human settlement ], pos: noun, article: de }
   - { id: dict-komen, dutch: komen, english: to come, pos: verb }
   - { id: dict-komst, dutch: komst, english: arrival, pos: noun, article: de }
   - { id: dict-kondigen, dutch: kondigen, english: [ to announce, to make known ], pos: verb }
@@ -1240,7 +1241,7 @@ entries:
   - { id: dict-koopman, dutch: koopman, english: [ male merchant, merchantman, trader ], pos: noun, article: de }
   - { id: dict-koor, dutch: koor, english: [ choir, vocal ensemble, chorus ], pos: noun, article: het }
   - { id: dict-koord, dutch: koord, english: [ rope, cord ], pos: noun, article: het }
-  - { id: dict-koorts, dutch: koorts, english: [ fever, illness or symptom, feverish obsession ], pos: noun, article: de }
+  - { id: dict-koorts, dutch: koorts, english: [ fever, feverish obsession ], pos: noun, article: de }
   - { id: dict-kop, dutch: kop, english: [ cup, human, front ], pos: noun, article: de }
   - { id: dict-kopen, dutch: kopen, english: [ to buy, to purchase ], pos: verb }
   - { id: dict-koppelen, dutch: koppelen, english: [ to couple, to clutch, to mount ], pos: verb }
@@ -1270,7 +1271,7 @@ entries:
   - { id: dict-kruid, dutch: kruid, english: [ herb, herbaceous plant, potherb ], pos: noun, article: het }
   - { id: dict-kruipen, dutch: kruipen, english: [ to crawl, to creep ], pos: verb }
   - { id: dict-kruis, dutch: kruis, english: [ cross, crotch, sharp ], pos: noun, article: het }
-  - { id: dict-kunnen, dutch: kunnen, english: [ to can, to be able to, to may ], pos: verb }
+  - { id: dict-kunnen, dutch: kunnen, english: [ can, to be able to, may ], pos: verb }
   - { id: dict-kunst, dutch: kunst, english: [ art, prowess ], pos: noun, article: de }
   - { id: dict-kunstenaar, dutch: kunstenaar, english: artist, pos: noun, article: de }
   - { id: dict-kus, dutch: kus, english: kiss, pos: noun, article: de }
@@ -1415,12 +1416,12 @@ entries:
   - { id: dict-maken, dutch: maken, english: [ to make, to create, to prepare ], pos: verb }
   - { id: dict-makkelijk, dutch: makkelijk, english: [ easy, complacent ], pos: adjective }
   - { id: dict-maling, dutch: maling, english: the direction towards which, pos: noun, article: de }
-  - { id: dict-man, dutch: man, english: [ man, human male, either adult or age-irrespective ], pos: noun, article: de }
+  - { id: dict-man, dutch: man, english: [ man, human male, husband ], pos: noun, article: de }
   - { id: dict-manager, dutch: manager, english: [ manager, someone in management ], pos: noun, article: de }
   - { id: dict-mand, dutch: mand, english: basket, pos: noun, article: de }
   - { id: dict-manier, dutch: manier, english: [ way, manner ], pos: noun, article: de }
   - { id: dict-mantel, dutch: mantel, english: [ cape, cloak, mantle ], pos: noun, article: de }
-  - { id: dict-markt, dutch: markt, english: [ physical market place, usually a public square, single ], pos: noun, article: de }
+  - { id: dict-markt, dutch: markt, english: [ physical market place, single ], pos: noun, article: de }
   - { id: dict-masker, dutch: masker, english: mask, pos: noun, article: het }
   - { id: dict-massa, dutch: massa, english: [ mass, multitude ], pos: noun, article: de }
   - { id: dict-mast, dutch: mast, english: mast, pos: noun, article: de }
@@ -1506,13 +1507,13 @@ entries:
   - { id: dict-moeten, dutch: moeten, english: [ to be necessary, to be required, to have to ], pos: verb }
   - { id: dict-mogelijk, dutch: mogelijk, english: [ possible, possibly ], pos: adjective }
   - { id: dict-mogelijkheid, dutch: mogelijkheid, english: possibility, pos: noun, article: de }
-  - { id: dict-mogen, dutch: mogen, english: [ to be allowed, to may, to may go ], pos: verb }
+  - { id: dict-mogen, dutch: mogen, english: [ to be allowed, may, may go ], pos: verb }
   - { id: dict-molen, dutch: molen, english: mill, pos: noun, article: de }
   - { id: dict-moment, dutch: moment, english: moment, pos: noun, article: het }
   - { id: dict-mompelen, dutch: mompelen, english: to mumble, pos: verb }
   - { id: dict-mond, dutch: mond, english: mouth, pos: noun, article: de }
   - { id: dict-monnik, dutch: monnik, english: monk, pos: noun, article: de }
-  - { id: dict-monster, dutch: monster, english: [ monster, terrifying and dangerous creature, sample ], pos: noun, article: het }
+  - { id: dict-monster, dutch: monster, english: [ monster, sample ], pos: noun, article: het }
   - { id: dict-mooi, dutch: mooi, english: [ beautiful, pretty ], pos: adjective }
   - { id: dict-moord, dutch: moord, english: [ murder, tragedy ], pos: noun, article: de }
   - { id: dict-moordenaar, dutch: moordenaar, english: murderer, pos: noun, article: de }
@@ -1561,8 +1562,8 @@ entries:
   - { id: dict-negen, dutch: negen, english: nine, pos: numeral }
   - { id: dict-negentien, dutch: negentien, english: nineteen, pos: numeral }
   - { id: dict-nek, dutch: nek, english: [ nape of the neck, neck ], pos: noun, article: de }
-  - { id: dict-nemen, dutch: nemen, english: [ to take, to take hold of, to grasp or grab ], pos: verb }
-  - { id: dict-nerveus, dutch: nerveus, english: [ nervous, anxious, jumpy ], pos: adjective }
+  - { id: dict-nemen, dutch: nemen, english: [ to take, to take hold of ], pos: verb }
+  - { id: dict-nerveus, dutch: nerveus, english: [ anxious, jumpy ], pos: adjective }
   - { id: dict-net-adjective, dutch: net, english: [ clean, tidy, decent ], pos: adjective }
   - { id: dict-net, dutch: net, english: [ tidily, neatly, decently ], pos: adverb }
   - { id: dict-net-noun, dutch: net, english: [ net, television channel, omentum ], pos: noun, article: het }
@@ -1572,14 +1573,14 @@ entries:
   - { id: dict-niet, dutch: niet, english: not, pos: adverb }
   - { id: dict-niets, dutch: niets, english: nothing, pos: pronoun }
   - { id: dict-nieuw, dutch: nieuw, english: new, pos: adjective }
-  - { id: dict-nieuwsgierig, dutch: nieuwsgierig, english: [ curious, inquisitive ], pos: adjective }
+  - { id: dict-nieuwsgierig, dutch: nieuwsgierig, english: inquisitive, pos: adjective }
   - { id: dict-nijdig, dutch: nijdig, english: [ angry, livid, furious ], pos: adjective }
   - { id: dict-niks, dutch: niks, english: nothing, pos: pronoun }
   - { id: dict-niveau, dutch: niveau, english: level, pos: noun, article: het }
   - { id: dict-nodig, dutch: nodig, english: [ necessary, needed, inevitable ], pos: adjective }
   - { id: dict-nodigen, dutch: nodigen, english: to invite, pos: verb }
   - { id: dict-noemen, dutch: noemen, english: [ to call, to name, to mention ], pos: verb }
-  - { id: dict-nog, dutch: nog, english: [ still, as before, yet ], pos: adverb }
+  - { id: dict-nog, dutch: nog, english: [ still, yet, more ], pos: adverb }
   - { id: dict-nogal, dutch: nogal, english: [ rather, quite ], pos: adverb }
   - { id: dict-non, dutch: non, english: nun, pos: noun, article: de }
   - { id: dict-nood, dutch: nood, english: [ emergency, crisis, distress ], pos: noun, article: de }
@@ -1645,7 +1646,7 @@ entries:
   - { id: dict-onrustig, dutch: onrustig, english: [ restless, agitated, unsettled ], pos: adjective }
   - { id: dict-ons, dutch: ons, english: [ us, ourselves, our ], pos: pronoun }
   - { id: dict-onschuldig, dutch: onschuldig, english: innocent, pos: adjective }
-  - { id: dict-ontbijt, dutch: ontbijt, english: [ breakfast, usually in the morning ], pos: noun, article: het }
+  - { id: dict-ontbijt, dutch: ontbijt, english: breakfast, pos: noun, article: het }
   - { id: dict-ontbijten, dutch: ontbijten, english: [ to breakfast, to have breakfast ], pos: verb }
   - { id: dict-ontdekken, dutch: ontdekken, english: to discover, pos: verb }
   - { id: dict-onthoofden, dutch: onthoofden, english: [ to behead, to decapitate, to notably as capital punishment ], pos: verb }
@@ -1744,7 +1745,7 @@ entries:
   - { id: dict-organiseren, dutch: organiseren, english: to organise, pos: verb }
   - { id: dict-oud, dutch: oud, english: [ old, stale ], pos: adjective }
   - { id: dict-oudejaarsavond, dutch: oudejaarsavond, english: New Year's Eve, pos: noun, article: de }
-  - { id: dict-ouder, dutch: ouder, english: [ parent, father or mother ], pos: noun, article: de }
+  - { id: dict-ouder, dutch: ouder, english: parent, pos: noun, article: de }
   - { id: dict-ouderwets, dutch: ouderwets, english: old-fashioned, pos: adjective }
   - { id: dict-oven, dutch: oven, english: [ oven, furnace ], pos: noun, article: de }
   - { id: dict-over, dutch: over, english: [ over, about, in ], pos: preposition }
@@ -1777,7 +1778,7 @@ entries:
   - { id: dict-pakken, dutch: pakken, english: [ to grab, to take, to get ], pos: verb }
   - { id: dict-pakket, dutch: pakket, english: [ kit, packet, package ], pos: noun, article: het }
   - { id: dict-paleis, dutch: paleis, english: palace, pos: noun, article: het }
-  - { id: dict-pan, dutch: pan, english: [ pan, especially for cooking, cooking pot ], pos: noun, article: de }
+  - { id: dict-pan, dutch: pan, english: [ pan, cooking pot, roof tile ], pos: noun, article: de }
   - { id: dict-paniek, dutch: paniek, english: panic, pos: noun, article: de }
   - { id: dict-pap, dutch: pap, english: [ mush, porridge, pa ], pos: noun, article: de }
   - { id: dict-papier, dutch: papier, english: [ paper, money ], pos: noun, article: het }
@@ -1972,7 +1973,6 @@ entries:
   - { id: dict-rijkdom, dutch: rijkdom, english: [ wealth, prosperity ], pos: noun, article: de }
   - { id: dict-rijp, dutch: rijp, english: ripe, pos: adjective }
   - { id: dict-rijst, dutch: rijst, english: rice, pos: noun, article: de }
-  - { id: dict-rijtuig, dutch: rijtuig, english: carriage or coach, pos: noun, article: het }
   - { id: dict-rillen, dutch: rillen, english: to shiver, pos: verb }
   - { id: dict-rilling, dutch: rilling, english: [ shiver, shudder ], pos: noun, article: de }
   - { id: dict-ring, dutch: ring, english: [ ring, hollow circular object, beltway ], pos: noun, article: de }
@@ -2034,12 +2034,12 @@ entries:
   - { id: dict-schandaal, dutch: schandaal, english: scandal, pos: noun, article: het }
   - { id: dict-schande, dutch: schande, english: [ shame, disgrace ], pos: noun, article: de }
   - { id: dict-schat, dutch: schat, english: [ treasure, amassed valuables, honey ], pos: noun, article: de }
-  - { id: dict-scheef, dutch: scheef, english: [ crooked, not level or straight, weird ], pos: adjective }
+  - { id: dict-scheef, dutch: scheef, english: [ crooked, weird ], pos: adjective }
   - { id: dict-scheiden, dutch: scheiden, english: [ to separate, to divorce ], pos: verb }
   - { id: dict-scheiding, dutch: scheiding, english: [ separation, divorce, parting ], pos: noun, article: de }
   - { id: dict-schel, dutch: schel, english: shrill, pos: adjective }
   - { id: dict-schelden, dutch: schelden, english: [ to scold, to swear ], pos: verb }
-  - { id: dict-scheldwoord, dutch: scheldwoord, english: [ insult, invective, pejorative ], pos: noun, article: het }
+  - { id: dict-scheldwoord, dutch: scheldwoord, english: [ insult, pejorative ], pos: noun, article: het }
   - { id: dict-schelen, dutch: schelen, english: to ail, pos: verb }
   - { id: dict-schema, dutch: schema, english: [ visualisation, diagram, conceptual model ], pos: noun, article: het }
   - { id: dict-schenken, dutch: schenken, english: [ to give as a present, to gift ], pos: verb }
@@ -2075,7 +2075,7 @@ entries:
   - { id: dict-schriftelijk, dutch: schriftelijk, english: written, pos: adjective }
   - { id: dict-schrijven, dutch: schrijven, english: to write, pos: verb }
   - { id: dict-schrijver, dutch: schrijver, english: [ writer, author, scribe ], pos: noun, article: de }
-  - { id: dict-schrik, dutch: schrik, english: [ shock, sudden fear or dread, fear ], pos: noun, article: de }
+  - { id: dict-schrik, dutch: schrik, english: [ shock, fear ], pos: noun, article: de }
   - { id: dict-schrikken, dutch: schrikken, english: [ to be startled, to get a scare, to quench ], pos: verb }
   - { id: dict-schudden, dutch: schudden, english: [ to shake, to tremble, to waver ], pos: verb }
   - { id: dict-schuin, dutch: schuin, english: [ slanted, slanting, obscene ], pos: adjective }
@@ -2133,7 +2133,7 @@ entries:
   - { id: dict-smeken, dutch: smeken, english: [ to beg, to implore, to urge ], pos: verb }
   - { id: dict-smeren, dutch: smeren, english: [ to smear, to rub a substance, to make ], pos: verb }
   - { id: dict-smerig, dutch: smerig, english: [ dirty, filthy, grubby ], pos: adjective }
-  - { id: dict-smijten, dutch: smijten, english: [ to fling or hurl, to throw forcefully ], pos: verb }
+  - { id: dict-smijten, dutch: smijten, english: to throw forcefully, pos: verb }
   - { id: dict-sms, dutch: sms, english: [ SMS, text message ], pos: noun, article: de }
   - { id: dict-smullen, dutch: smullen, english: [ to eat quickly, to feast ], pos: verb }
   - { id: dict-snappen, dutch: snappen, english: [ to get, to understand ], pos: verb }
@@ -2241,7 +2241,7 @@ entries:
   - { id: dict-stoer, dutch: stoer, english: [ firm, tough ], pos: adjective }
   - { id: dict-stof, dutch: stof, english: dust, pos: noun, article: het }
   - { id: dict-stofzuigen, dutch: stofzuigen, english: to vacuum-clean, pos: verb }
-  - { id: dict-stok, dutch: stok, english: [ stick, natural or artificial, cane ], pos: noun, article: de }
+  - { id: dict-stok, dutch: stok, english: [ stick, cane, deck ], pos: noun, article: de }
   - { id: dict-stoken, dutch: stoken, english: [ to poke, to stoke, to light ], pos: verb }
   - { id: dict-stom, dutch: stom, english: [ mute, speechless, wordless ], pos: adjective }
   - { id: dict-stoppen, dutch: stoppen, english: [ to stop, to halt, to plug ], pos: verb }
@@ -2267,14 +2267,14 @@ entries:
   - { id: dict-streng, dutch: streng, english: [ strict, severe, rigorous ], pos: adjective }
   - { id: dict-stress, dutch: stress, english: stress, pos: noun, article: de }
   - { id: dict-strijd, dutch: strijd, english: [ conflict, strife, battle ], pos: noun, article: de }
-  - { id: dict-strijden, dutch: strijden, english: [ to fight, to wage battle or war ], pos: verb }
+  - { id: dict-strijden, dutch: strijden, english: to fight, pos: verb }
   - { id: dict-strijder, dutch: strijder, english: fighter, pos: noun, article: de }
   - { id: dict-strijken, dutch: strijken, english: [ to stroke, to iron, to lower ], pos: verb }
   - { id: dict-stromen, dutch: stromen, english: to flow, pos: verb }
   - { id: dict-stroming, dutch: stroming, english: [ flow, current, movement ], pos: noun, article: de }
   - { id: dict-strompelen, dutch: strompelen, english: [ to stumble, to walk clumsily, to fall ], pos: verb }
   - { id: dict-strooien, dutch: strooien, english: [ to strew, to scatter, to sprinkle ], pos: verb }
-  - { id: dict-stroom, dutch: stroom, english: [ flow, current or flush, major river ], pos: noun, article: de }
+  - { id: dict-stroom, dutch: stroom, english: [ flow, major river, smaller stream ], pos: noun, article: de }
   - { id: dict-struik, dutch: struik, english: [ bush, shrub ], pos: noun, article: de }
   - { id: dict-studentenhuis, dutch: studentenhuis, english: [ student residence, student house ], pos: noun, article: het }
   - { id: dict-studentenstad, dutch: studentenstad, english: [ university town, college town ], pos: noun, article: de }
@@ -2490,7 +2490,7 @@ entries:
   - { id: dict-vals, dutch: vals, english: [ fake, "false", off-key ], pos: adjective }
   - { id: dict-vampier, dutch: vampier, english: [ vampire, vampire bat ], pos: noun, article: de }
   - { id: dict-van, dutch: van, english: [ of, by, from ], pos: preposition }
-  - { id: dict-vanaf, dutch: vanaf, english: [ starting from, from onwards, as of ], pos: preposition }
+  - { id: dict-vanaf, dutch: vanaf, english: starting from, pos: preposition }
   - { id: dict-vanavond, dutch: vanavond, english: [ tonight, this evening ], pos: adverb }
   - { id: dict-vanbinnen, dutch: vanbinnen, english: on the inside, pos: adverb }
   - { id: dict-vandaag, dutch: vandaag, english: today, pos: adverb }
@@ -2508,6 +2508,7 @@ entries:
   - { id: dict-vast-adverb, dutch: vast, english: [ surely, certainly, sure ], pos: adverb }
   - { id: dict-vastbinden, dutch: vastbinden, english: to tie up, pos: verb }
   - { id: dict-vasthouden, dutch: vasthouden, english: [ to hold, to retain ], pos: verb }
+  - { id: dict-vastmaken, dutch: vastmaken, english: [ to attach, to fasten ], pos: verb }
   - { id: dict-vatten, dutch: vatten, english: [ to grasp, to grasp mentally, to catch ], pos: verb }
   - { id: dict-vechten, dutch: vechten, english: to fight, pos: verb }
   - { id: dict-veel, dutch: veel, english: [ many, much, a lot of ], pos: pronoun }
@@ -2704,7 +2705,7 @@ entries:
   - { id: dict-volledig, dutch: volledig, english: complete, pos: adjective }
   - { id: dict-volop, dutch: volop, english: [ abundant, plentiful, in abundance ], pos: adverb }
   - { id: dict-volwassen, dutch: volwassen, english: [ adult, full-grown ], pos: adjective }
-  - { id: dict-volwassene, dutch: volwassene, english: [ adult, full-grown human or animal ], pos: noun, article: de }
+  - { id: dict-volwassene, dutch: volwassene, english: adult, pos: noun, article: de }
   - { id: dict-voor, dutch: voor, english: [ for, before ], pos: preposition }
   - { id: dict-vooraf, dutch: vooraf, english: beforehand, pos: adverb }
   - { id: dict-vooral, dutch: vooral, english: [ especially, above all ], pos: adverb }
@@ -2734,7 +2735,7 @@ entries:
   - { id: dict-voorspellen, dutch: voorspellen, english: [ to predict, to foresee, to foretell ], pos: verb }
   - { id: dict-voorstellen, dutch: voorstellen, english: [ to present, to put forth, to introduce ], pos: verb }
   - { id: dict-voorstelling, dutch: voorstelling, english: [ show, performance, presentation ], pos: noun, article: de }
-  - { id: dict-voortaan, dutch: voortaan, english: [ henceforth, from now on ], pos: adverb }
+  - { id: dict-voortaan, dutch: voortaan, english: henceforth, pos: adverb }
   - { id: dict-voortdurend, dutch: voortdurend, english: [ continuous, incessant, continuously ], pos: adjective }
   - { id: dict-voortzetten, dutch: voortzetten, english: to continue, pos: verb }
   - { id: dict-vooruit, dutch: vooruit, english: [ ahead, onward ], pos: adverb }
@@ -2779,7 +2780,7 @@ entries:
   - { id: dict-waaien, dutch: waaien, english: [ to blow, to be windy, to wave ], pos: verb }
   - { id: dict-waar, dutch: waar, english: [ "true", authentic, legitimate ], pos: adjective }
   - { id: dict-waard, dutch: waard, english: [ worth, esteemed ], pos: adjective }
-  - { id: dict-waarde, dutch: waarde, english: [ value, monetary or figurative worth, moral value ], pos: noun, article: de }
+  - { id: dict-waarde, dutch: waarde, english: [ value, moral value ], pos: noun, article: de }
   - { id: dict-waarderen, dutch: waarderen, english: [ to appreciate, to value ], pos: verb }
   - { id: dict-waardevol, dutch: waardevol, english: [ valuable, useful ], pos: adjective }
   - { id: dict-waarheid, dutch: waarheid, english: truth, pos: noun, article: de }
@@ -2805,7 +2806,7 @@ entries:
   - { id: dict-want, dutch: want, english: [ for, because, as ], pos: conjunction }
   - { id: dict-wapen, dutch: wapen, english: weapon, pos: noun, article: het }
   - { id: dict-warm, dutch: warm, english: [ warm, hot ], pos: adjective }
-  - { id: dict-warmte, dutch: warmte, english: [ physical warmth, thermal energy, from moderate to heat ], pos: noun, article: de }
+  - { id: dict-warmte, dutch: warmte, english: [ physical warmth, thermal energy, warmth ], pos: noun, article: de }
   - { id: dict-was, dutch: was, english: [ wash, washing, laundry ], pos: noun, article: de }
   - { id: dict-wasdroger, dutch: wasdroger, english: clothes dryer, pos: noun, article: de }
   - { id: dict-wassen, dutch: wassen, english: [ to wash, to clean ], pos: verb }
@@ -2907,7 +2908,7 @@ entries:
   - { id: dict-zaal, dutch: zaal, english: [ room, hall ], pos: noun, article: de }
   - { id: dict-zacht, dutch: zacht, english: [ soft, gentle, mild ], pos: adjective }
   - { id: dict-zadel, dutch: zadel, english: saddle, pos: noun, article: het }
-  - { id: dict-zak, dutch: zak, english: [ sack or sack-like container, such as a bag, sachet ], pos: noun, article: de }
+  - { id: dict-zak, dutch: zak, english: [ sachet, pouch, pocket ], pos: noun, article: de }
   - { id: dict-zakdoek, dutch: zakdoek, english: [ tissue, handkerchief ], pos: noun, article: de }
   - { id: dict-zakenman, dutch: zakenman, english: businessman, pos: noun, article: de }
   - { id: dict-zakken, dutch: zakken, english: [ to fall, to drop, to sink ], pos: verb }
@@ -2955,7 +2956,6 @@ entries:
   - { id: dict-zo, dutch: zo, english: [ so, thus, right away ], pos: adverb }
   - { id: dict-zoals, dutch: zoals, english: [ like, such as, as ], pos: conjunction }
   - { id: dict-zodat, dutch: zodat, english: such that, pos: conjunction }
-  - { id: dict-zodra, dutch: zodra, english: as soon as, pos: conjunction }
   - { id: dict-zoeken, dutch: zoeken, english: [ to search, to look for ], pos: verb }
   - { id: dict-zoektocht, dutch: zoektocht, english: [ search, quest ], pos: noun, article: de }
   - { id: dict-zoen, dutch: zoen, english: [ kiss, smooch ], pos: noun, article: de }
@@ -2963,7 +2963,7 @@ entries:
   - { id: dict-zoet, dutch: zoet, english: [ sweet-tasting, sweet, calm ], pos: adjective }
   - { id: dict-zogenaamd, dutch: zogenaamd, english: [ so-called, supposedly ], pos: adjective }
   - { id: dict-zoiets, dutch: zoiets, english: [ something like that, such a thing ], pos: pronoun }
-  - { id: dict-zolang, dutch: zolang, english: [ as long as, so long as ], pos: adverb }
+  - { id: dict-zolang, dutch: zolang, english: so long as, pos: adverb }
   - { id: dict-zolder, dutch: zolder, english: attic, pos: noun, article: de }
   - { id: dict-zomaar, dutch: zomaar, english: just because, pos: adverb }
   - { id: dict-zomer, dutch: zomer, english: summer, pos: noun, article: de }
@@ -2976,10 +2976,10 @@ entries:
   - { id: dict-zoon, dutch: zoon, english: son, pos: noun, article: de }
   - { id: dict-zorg, dutch: zorg, english: [ care, concern, healthcare ], pos: noun, article: de }
   - { id: dict-zorgen, dutch: zorgen, english: [ to make sure, to ensure ], pos: verb }
-  - { id: dict-zorgvuldig, dutch: zorgvuldig, english: [ careful, meticulous ], pos: adjective }
+  - { id: dict-zorgvuldig, dutch: zorgvuldig, english: meticulous, pos: adjective }
   - { id: dict-zout-adjective, dutch: zout, english: [ salted, salty ], pos: adjective }
   - { id: dict-zout, dutch: zout, english: salt, pos: noun, article: het }
-  - { id: dict-zover, dutch: zover, english: [ so far, as far as ], pos: adverb }
+  - { id: dict-zover, dutch: zover, english: so far, pos: adverb }
   - { id: dict-zucht, dutch: zucht, english: [ sigh, longing, disease ], pos: noun, article: de }
   - { id: dict-zuchten, dutch: zuchten, english: to sigh, pos: verb }
   - { id: dict-zuiden, dutch: zuiden, english: [ south, southern ], pos: noun, article: het }

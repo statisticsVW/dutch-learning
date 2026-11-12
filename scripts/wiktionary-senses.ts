@@ -1,7 +1,8 @@
-// Reads one English Wiktionary page's wikitext and returns, for each article, the English meanings
-// of its current Dutch noun senses. Used by build-article-snapshot.ts for words Wiktionary's
-// categories list as both de and het, to tell a real second noun (het appel, "appeal") from a sense
-// a learner never needs (het hond, an obsolete unit of area).
+// Reads the Dutch senses on one English Wiktionary page's wikitext.
+// - nounMeaningsByArticle: the English meanings of each article's current noun senses. Used by
+//   build-article-snapshot.ts for words Wiktionary's categories list as both de and het, to tell a real
+//   second noun (het appel, "appeal") from a sense a learner never needs (het hond, an obsolete unit of area).
+// - dutchSenses: every current sense by part of speech. Used by build-dictionary.ts for English meanings.
 import type { Article, PartOfSpeech } from '../src/content/types.ts';
 
 /** Senses with these labels don't count: they're not current Netherlands Dutch. */

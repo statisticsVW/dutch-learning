@@ -26,7 +26,7 @@ const NT2LEX_PATH = 'sources/nt2lex/NT2Lex-CGN-v01.tsv';
 const SENSES_PATH = 'sources/wiktionary/dutch-senses.json';
 /** Words looked up per round; rounds stop once the Dictionary reaches its target. */
 const ROUND = 250;
-/** Words NT2Lex lists that a 13-year-old's Dictionary leaves out. Wiktionary's labels catch most others. */
+/** Words NT2Lex lists that a young Learner's Dictionary leaves out. Wiktionary's labels catch most others. */
 const LEFT_OUT = new Set(['shit', 'seks']);
 
 const snapshot = readArticleSnapshot();

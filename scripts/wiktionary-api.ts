@@ -2,9 +2,11 @@
 // Wiktionary content is licensed CC BY-SA 4.0; see content/wiktionary/README.md.
 
 const API = 'https://en.wiktionary.org/w/api.php';
-const USER_AGENT = 'dutch-learning-content-snapshot/1.0 (build script; Node fetch)';
+const USER_AGENT = 'dutch-learning-content-build/1.0 (build script; Node fetch)';
+/** The most pages the API returns in one request. */
+const PAGES_PER_REQUEST = 50;
 
-export type ApiResponse = {
+type ApiResponse = {
   error?: { code: string; info: string };
   continue?: Record<string, string>;
   query?: {
@@ -32,22 +34,22 @@ export async function api(params: Record<string, string>): Promise<ApiResponse> 
   }
 }
 
-/** The wikitext of each page that exists, 50 pages per request. */
-export async function pageTexts(titles: string[], what: string): Promise<Map<string, string>> {
+/** The wikitext of each page that exists. `label` names the pages in progress messages. */
+export async function pageTexts(titles: string[], label: string): Promise<Map<string, string>> {
   const texts = new Map<string, string>();
-  for (let i = 0; i < titles.length; i += 50) {
+  for (let i = 0; i < titles.length; i += PAGES_PER_REQUEST) {
     const body = await api({
       action: 'query',
       prop: 'revisions',
       rvprop: 'content',
       rvslots: 'main',
-      titles: titles.slice(i, i + 50).join('|'),
+      titles: titles.slice(i, i + PAGES_PER_REQUEST).join('|'),
     });
     for (const page of body.query?.pages ?? []) {
       const text = page.revisions?.[0]?.slots.main.content;
       if (text) texts.set(page.title, text);
     }
-    console.log(`Read ${Math.min(i + 50, titles.length)} of ${titles.length} ${what}.`);
+    console.log(`Read ${Math.min(i + PAGES_PER_REQUEST, titles.length)} of ${titles.length} ${label}.`);
   }
   return texts;
 }

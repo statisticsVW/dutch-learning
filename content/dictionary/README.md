@@ -41,5 +41,5 @@ The meanings are picked by a script, so some are odd or too narrow. Fix them her
 - The **meanings** and **articles** come from [English Wiktionary](https://en.wiktionary.org), by
   Wiktionary contributors, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
-`dictionary.yaml` is shared under CC BY-SA 4.0. Because its word list was picked with NT2Lex, keep
+`dictionary.yaml` is shared under CC BY-SA 4.0. Because its words were picked with NT2Lex, keep
 it non-commercial too, as NT2Lex's licence asks. Both sources are credited in the app's About screen.

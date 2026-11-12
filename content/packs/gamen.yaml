@@ -77,7 +77,6 @@ cards:
     english: [map, card]
     pos: noun
     article: de
-    false-friend: cart
   - id: gamen-14
     dutch: schat
     english: treasure

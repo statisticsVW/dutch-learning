@@ -112,6 +112,17 @@ describe('shortMeanings', () => {
     expect(shortMeanings(['A maiden, damsel, or young unmarried noblewoman.'], 'noun')).toEqual(['maiden', 'damsel']);
   });
 
+  it('skips pieces of an explanation that a comma split off', () => {
+    expect(shortMeanings(['to ring, like using a bell'], 'verb')).toEqual(['to ring']);
+    expect(shortMeanings(['physical warmth, thermal energy, from moderate to heat'], 'noun')).toEqual(['physical warmth', 'thermal energy']);
+    expect(shortMeanings(['a monster, terrifying and dangerous creature'], 'noun')).toEqual(['monster']);
+    expect(shortMeanings(['destructive, catastrophic fire'], 'noun')).toEqual(['catastrophic fire']);
+  });
+
+  it('does not put "to" in front of may, can or must', () => {
+    expect(shortMeanings(['may, can, be allowed to'], 'verb')).toEqual(['may', 'can', 'to be allowed to']);
+  });
+
   it('takes every meaning of the first sense, but only a short first meaning of later ones', () => {
     expect(shortMeanings(['beer', 'serving of a drink, glass', 'to say all one wishes to say'], 'noun')).toEqual(['beer']);
     expect(shortMeanings(['football club'], 'noun')).toEqual(['football club']);

@@ -41,7 +41,7 @@ export function readNt2Lex(tsv: string): Nt2LexWord[] {
     const pos = posOf(cells[tag]);
     const level = cells[a1] !== '-' ? 'A1' : cells[a2] !== '-' ? 'A2' : undefined;
     if (!pos || !level || !/^\p{Ll}[\p{Ll}\p{M}-]*$/u.test(cells[word])) continue;
-    const key = `${cells[word]}|${pos}`;
+    const key = wordKey(cells[word], pos);
     const frequency = Number(cells[total]) || 0;
     const seen = found.get(key);
     if (!seen) found.set(key, { word: cells[word], pos, level, frequency });
@@ -51,6 +51,11 @@ export function readNt2Lex(tsv: string): Nt2LexWord[] {
     }
   }
   return [...found.values()].sort((a, b) => b.frequency - a.frequency || a.word.localeCompare(b.word, 'nl'));
+}
+
+/** One key per word and part of speech: "eten" the verb and "eten" the noun are different words. */
+export function wordKey(word: string, pos: PartOfSpeech): string {
+  return `${word.toLowerCase()}|${pos}`;
 }
 
 /** "N(soort)" → noun; proper names ("N(eigen)") and multi-word tags → undefined. */

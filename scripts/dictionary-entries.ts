@@ -1,7 +1,7 @@
 // Turns NT2Lex's word list and Wiktionary's senses into Dictionary entries. Pure; used by build-dictionary.ts.
 import { slugOf, type ArticleSnapshot } from '../src/content/check.ts';
 import { ARTICLES, type Article, type DictionaryEntry, type PartOfSpeech } from '../src/content/types.ts';
-import type { Nt2LexWord } from './nt2lex.ts';
+import { wordKey, type Nt2LexWord } from './nt2lex.ts';
 import type { DutchSense, DutchSenses } from './wiktionary-senses.ts';
 
 const MAX_MEANINGS = 3;
@@ -27,19 +27,42 @@ export function shortMeanings(senses: string[], pos: PartOfSpeech): string[] {
   senses.forEach((sense, index) => {
     const text = withoutBrackets(sense).split(';')[0].replace(/\.$/, '');
     const explains = text.length > MAX_SENSE_LENGTH || text.includes(':');
-    const pieces = text.split(/[,:]/);
-    for (let piece of index === 0 && !explains ? pieces : pieces.slice(0, 1)) {
+    const all = text.split(/[,:]/).map((p) => p.replace(/\s+/g, ' ').trim());
+    const pieces = index === 0 && !explains ? all : all.slice(0, 1);
+    pieces.forEach((raw, at) => {
       if (meanings.length === MAX_MEANINGS) return;
-      piece = piece.replace(/\s+/g, ' ').trim();
-      if (pos === 'noun') piece = piece.replace(/^an? /i, '');
-      if (pos === 'verb' && piece && !/^to /.test(piece)) piece = `to ${piece}`;
-      const words = piece.replace(/^to /, '').split(' ').length;
+      // "destructive, catastrophic fire": the first adjective belongs with the noun after it.
+      if (ADJECTIVE.test(raw) && ADJECTIVE.test(pieces[at + 1]?.split(' ')[0] ?? '')) return;
+      if (EXPLANATION_START.test(raw)) return;
+      let piece = pos === 'noun' ? raw.replace(/^an? /i, '') : raw;
+      if (pos === 'verb' && piece && !VERB_START.test(`${piece} `)) piece = `to ${piece}`;
       const maxWords = index === 0 ? MAX_MEANING_WORDS : MAX_LATER_MEANING_WORDS;
-      if (words > maxWords || piece.length > MAX_MEANING_LENGTH || /^(or|and) /.test(piece) || !PLAIN_MEANING.test(piece) || meanings.includes(piece)) continue;
-      meanings.push(piece);
-    }
+      if (isUsableMeaning(piece, maxWords, all.length === 1) && !meanings.includes(piece)) meanings.push(piece);
+    });
   });
   return meanings;
+}
+
+/** A verb meaning that needs no "to" in front: it has one, or it is a modal ("may", "can"). */
+const VERB_START = /^(?:to|may|can|must|shall|should|will|would|might|could) /;
+/** A single English word that looks like an adjective ("destructive", "catastrophic"). */
+const ADJECTIVE = /^\p{Ll}+(?:ive|ous|ful|ic)$/u;
+/** How a fragment of an explanation starts: "like using a bell", "from moderate to heat". */
+const EXPLANATION_START = /^(?:or|and|like|from|especially|such as|as|usually|often) /;
+
+/**
+ * Short plain words, not a fragment of a longer explanation ("or young unmarried noblewoman").
+ * "And" or "or" is fine in a sense that is one piece, but not in a split-off piece ("terrifying and dangerous creature").
+ */
+function isUsableMeaning(meaning: string, maxWords: number, wholeSense: boolean): boolean {
+  const words = meaning.replace(/^to /, '').split(' ').length;
+  return (
+    words <= maxWords &&
+    meaning.length <= MAX_MEANING_LENGTH &&
+    !EXPLANATION_START.test(meaning) &&
+    (wholeSense || !/ (?:and|or) /.test(meaning)) &&
+    PLAIN_MEANING.test(meaning)
+  );
 }
 
 export type DictionaryInputs = {
@@ -57,11 +80,11 @@ export type DictionaryInputs = {
 /** The existing entries, then the most frequent candidates that have English meanings (and, for nouns, a checked article). */
 export function buildDictionaryEntries({ candidates, senses, snapshot, existing, target }: DictionaryInputs): DictionaryEntry[] {
   const entries = [...existing];
-  const has = new Set(existing.map((e) => `${e.dutch.toLowerCase()}|${e.pos}`));
+  const has = new Set(existing.map((e) => wordKey(e.dutch, e.pos)));
   const ids = new Set(existing.map((e) => e.id));
   for (const { word, pos } of candidates) {
     if (entries.length >= target) break;
-    if (has.has(`${word}|${pos}`)) continue;
+    if (has.has(wordKey(word, pos))) continue;
     const page = senses[word] ?? {};
     // Dutch uses most adjectives as adverbs too (snel: fast, quickly), and NT2Lex tags both uses as adjective.
     const wordSenses = pos === 'adjective' ? [...(page.adjective ?? []), ...(page.adverb ?? [])] : (page[pos] ?? []);
@@ -71,7 +94,7 @@ export function buildDictionaryEntries({ candidates, senses, snapshot, existing,
     const id = ids.has(`dict-${slug}`) ? `dict-${slug}-${pos}` : `dict-${slug}`;
     if (ids.has(id)) continue;
     entries.push({ id, ...entry });
-    has.add(`${word}|${pos}`);
+    has.add(wordKey(word, pos));
     ids.add(id);
   }
   return entries;
