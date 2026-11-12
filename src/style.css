@@ -456,6 +456,35 @@ button.quiet {
   font-size: 0.9rem;
   margin: -0.5rem 0 1rem;
 }
+.about-link {
+  margin-top: 1.5rem;
+  padding-left: 0;
+  text-decoration: underline;
+}
+.about {
+  line-height: 1.5;
+}
+.credits {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  display: grid;
+  gap: 1rem;
+}
+.credits h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+.credits p {
+  margin: 0.25rem 0 0;
+}
+.credit-small {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.about a {
+  color: var(--fg);
+}
 /* Word requests and Mistake reports: small and out of the way, so they never compete with practice. */
 .share-button {
   font-size: 0.875rem;

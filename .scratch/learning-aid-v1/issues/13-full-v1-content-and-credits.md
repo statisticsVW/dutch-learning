@@ -19,8 +19,8 @@ Include Cognate, False-friend and Fact notes throughout. Replace the small Dicti
 
 **Status:** ready-for-agent
 
-- [ ] All 8 Packs present, about 20 Cards each, all passing the content check including the Wiktionary de/het cross-check
-- [ ] Every noun has an article; Cognates and False friends flagged where they apply
-- [ ] Full Dictionary bundled and searchable; the app still loads quickly on a phone
-- [ ] About screen with source credits and licences
-- [ ] Any Card whose content could not be confirmed from a source is listed for the Curator to review
+- [x] All 8 Packs present, about 20 Cards each, all passing the content check including the Wiktionary de/het cross-check
+- [x] Every noun has an article; Cognates and False friends flagged where they apply
+- [x] Full Dictionary bundled and searchable; the app still loads quickly on a phone
+- [x] About screen with source credits and licences
+- [x] Any Card whose content could not be confirmed from a source is listed for the Curator to review

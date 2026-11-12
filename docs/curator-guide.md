@@ -119,7 +119,9 @@ entries:
 
 Entries have the same fields as Cards and the check applies the same rules. Ids must be unique
 across the Dictionary **and** all Packs; start them with `dict-`. Fixing an entry's meaning or
-spelling also fixes it in the Learner's Mijn woorden the next time he opens the Dictionary. See
+spelling also fixes it in the Learner's Mijn woorden the next time he opens the Dictionary. Most
+entries were filled in by a script from NT2Lex and Wiktionary, so if a meaning looks odd, just edit
+it: rebuilding the Dictionary never changes an entry that is already there. See
 [`content/dictionary/README.md`](../content/dictionary/README.md) for its sources and licence.
 
 ## Where the de/het check comes from

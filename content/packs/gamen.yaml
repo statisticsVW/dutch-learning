@@ -1,0 +1,114 @@
+# Pack: Gamen
+# Each Card needs: id (unique, never reuse or change it), dutch, english, pos.
+# Nouns also get an article: de or het. Optional: cognate, false-friend, fact (and facts for the Pack).
+# How-to: docs/curator-guide.md
+title: Gamen
+facts:
+  - Dutch borrows English game verbs and gives them Dutch endings. Gamen, levelen, saven. Ik game, jij gamet, ik heb gegamed!
+  - Dutch gamers mix in lots of English words, but the grammar around them stays Dutch.
+cards:
+  - id: gamen-01
+    dutch: gamen
+    english: to game
+    pos: verb
+    cognate: true
+    fact: Gamen gets Dutch endings. Ik game (I game), hij gamet (he games), ik heb gegamed (I have gamed).
+  - id: gamen-02
+    dutch: game
+    english: [game, video game]
+    pos: noun
+    article: de
+    cognate: true
+  - id: gamen-03
+    dutch: spel
+    english: game
+    pos: noun
+    article: het
+    fact: Spel is any game, like a board game or a sport. A little game is a spelletje.
+  - id: gamen-04
+    dutch: speler
+    english: player
+    pos: noun
+    article: de
+  - id: gamen-05
+    dutch: level
+    english: level
+    pos: noun
+    article: het
+    cognate: true
+  - id: gamen-06
+    dutch: levelen
+    english: to level up
+    pos: verb
+    fact: Ik level, jij levelt, ik heb geleveld. English verb, Dutch endings.
+  - id: gamen-07
+    dutch: saven
+    english: to save
+    pos: verb
+    fact: Ik save, ik heb het gesaved. The proper Dutch word is opslaan, but gamers often say saven.
+  - id: gamen-08
+    dutch: winnen
+    english: to win
+    pos: verb
+    cognate: true
+  - id: gamen-09
+    dutch: verliezen
+    english: to lose
+    pos: verb
+  - id: gamen-10
+    dutch: beurt
+    english: turn
+    pos: noun
+    article: de
+    fact: Jij bent aan de beurt means "it's your turn".
+  - id: gamen-11
+    dutch: punt
+    english: [point, score]
+    pos: noun
+    article: het
+  - id: gamen-12
+    dutch: leven
+    english: life
+    pos: noun
+    article: het
+    fact: In a game, lives are levens. Nog één leven means "one life left".
+  - id: gamen-13
+    dutch: kaart
+    english: [map, card]
+    pos: noun
+    article: de
+  - id: gamen-14
+    dutch: schat
+    english: treasure
+    pos: noun
+    article: de
+    fact: Schat also means "sweetheart". Dutch parents often call their kids schat.
+  - id: gamen-15
+    dutch: monster
+    english: monster
+    pos: noun
+    article: het
+    cognate: true
+  - id: gamen-16
+    dutch: held
+    english: hero
+    pos: noun
+    article: de
+  - id: gamen-17
+    dutch: team
+    english: team
+    pos: noun
+    article: het
+    cognate: true
+  - id: gamen-18
+    dutch: makkelijk
+    english: easy
+    pos: adjective
+  - id: gamen-19
+    dutch: moeilijk
+    english: [hard, difficult]
+    pos: adjective
+  - id: gamen-20
+    dutch: snel
+    english: [fast, quick]
+    pos: adjective

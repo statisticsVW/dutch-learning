@@ -10,6 +10,7 @@ npm run dev            # local app
 npm test               # Vitest
 npm run check:content  # validate the Pack files and the Dictionary
 npm run build          # production build (also runs the content check)
+npm run build:dictionary  # add missing words to the Dictionary (see content/dictionary/README.md)
 ```
 
 Every push to `main` runs the content check, typecheck and tests, then deploys to GitHub Pages. If any check fails, nothing is deployed.

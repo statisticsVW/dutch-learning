@@ -1,0 +1,117 @@
+# Pack: Tekenen & kunst
+# Each Card needs: id (unique, never reuse or change it), dutch, english, pos.
+# Nouns also get an article: de or het. Optional: cognate, false-friend, fact (and facts for the Pack).
+# How-to: docs/curator-guide.md
+title: Tekenen & kunst
+facts:
+  - Dutch says Van Gogh with two throaty g sounds, like the ch in Scottish "loch". It sounds more like "fan Hoch" than "van Go".
+  - Rembrandt's famous painting The Night Watch (De Nachtwacht) hangs in the Rijksmuseum in Amsterdam.
+  - Miffy, the little white rabbit, is Dutch. Her Dutch name is Nijntje, and Dick Bruna drew her.
+cards:
+  - id: kunst-01
+    dutch: tekenen
+    english: to draw
+    pos: verb
+  - id: kunst-02
+    dutch: schilderen
+    english: to paint
+    pos: verb
+  - id: kunst-03
+    dutch: kleur
+    english: [colour, color]
+    pos: noun
+    article: de
+    cognate: true
+  - id: kunst-04
+    dutch: rood
+    english: red
+    pos: adjective
+  - id: kunst-05
+    dutch: blauw
+    english: blue
+    pos: adjective
+    cognate: true
+    fact: Delfts blauw (Delft Blue) is the famous blue-and-white Dutch pottery.
+  - id: kunst-06
+    dutch: geel
+    english: yellow
+    pos: adjective
+  - id: kunst-07
+    dutch: groen
+    english: green
+    pos: adjective
+    cognate: true
+  - id: kunst-08
+    dutch: zwart
+    english: black
+    pos: adjective
+  - id: kunst-09
+    dutch: wit
+    english: white
+    pos: adjective
+    false-friend: wit
+  - id: kunst-10
+    dutch: oranje
+    english: orange
+    pos: adjective
+    cognate: true
+    fact: Orange is the colour of the Dutch royal family. On King's Day (Koningsdag) the whole country dresses in orange.
+  - id: kunst-11
+    dutch: paars
+    english: purple
+    pos: adjective
+  - id: kunst-12
+    dutch: roze
+    english: pink
+    pos: adjective
+  - id: kunst-13
+    dutch: bruin
+    english: brown
+    pos: adjective
+    cognate: true
+  - id: kunst-14
+    dutch: grijs
+    english: [grey, gray]
+    pos: adjective
+    cognate: true
+  - id: kunst-15
+    dutch: potlood
+    english: pencil
+    pos: noun
+    article: het
+    fact: Potlood means "pot lead". A pencil's "lead" was never really lead, though; it is graphite.
+  - id: kunst-16
+    dutch: papier
+    english: paper
+    pos: noun
+    article: het
+    cognate: true
+  - id: kunst-17
+    dutch: tekening
+    english: drawing
+    pos: noun
+    article: de
+  - id: kunst-18
+    dutch: schilderij
+    english: painting
+    pos: noun
+    article: het
+  - id: kunst-19
+    dutch: kunst
+    english: art
+    pos: noun
+    article: de
+    fact: A kunstenaar is an artist.
+  - id: kunst-20
+    dutch: penseel
+    english: paintbrush
+    pos: noun
+    article: het
+    false-friend: pencil
+  - id: kunst-21
+    dutch: gum
+    english: eraser
+    pos: noun
+    article: de
+    false-friend: gum
+    fact: Chewing gum is kauwgom in Dutch. A gum is for rubbing out pencil.
