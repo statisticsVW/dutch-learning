@@ -32,3 +32,9 @@ export type Pack = {
   title: string;
   cards: Card[];
 };
+
+/** A word in the bundled Dictionary. It has the same fields as a Card, but only becomes one when the Learner adds it to Mijn woorden. */
+export type DictionaryEntry = Card;
+
+/** The id of Mijn woorden, the Learner's own Pack of words he added from the Dictionary. No Pack file may use it. */
+export const MY_WORDS_PACK_ID = 'mijn-woorden';

@@ -1,6 +1,6 @@
 # Dutch learning aid
 
-A small web app for learning Dutch at your own pace. Content lives in one YAML file per Pack under `content/packs/`.
+A small web app for learning Dutch at your own pace. Content lives in one YAML file per Pack under `content/packs/`, plus the Dictionary in `content/dictionary/`.
 
 ## Develop
 
@@ -8,7 +8,7 @@ A small web app for learning Dutch at your own pace. Content lives in one YAML f
 npm install
 npm run dev            # local app
 npm test               # Vitest
-npm run check:content  # validate the Pack files
+npm run check:content  # validate the Pack files and the Dictionary
 npm run build          # production build (also runs the content check)
 ```
 
