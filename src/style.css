@@ -95,3 +95,22 @@ button.quiet {
 .feedback.correct {
   color: var(--good);
 }
+.install-screen {
+  line-height: 1.5;
+}
+.install-steps li {
+  margin: 0.5rem 0;
+}
+.install-continue {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  font: inherit;
+  border-radius: 0.5rem;
+}
+.install-reminder {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  background: color-mix(in srgb, #f36c21 15%, transparent);
+}
