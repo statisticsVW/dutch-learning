@@ -8,7 +8,7 @@ Spec: `.scratch/learning-aid-v1/spec.md`. Glossary: `CONTEXT.md`.
 
 **Status:** ready-for-agent
 
-- [ ] Speech adapter interface with a real implementation and an in-memory fake
-- [ ] Engine tests: listen mode is offered for new/weak Cards only when audio is available
-- [ ] UI flow test: with a fake "no Dutch voice", the note appears and no listen prompts occur
+- [x] Speech adapter interface with a real implementation and an in-memory fake
+- [x] Engine tests: listen mode is offered for new/weak Cards only when audio is available
+- [x] UI flow test: with a fake "no Dutch voice", the note appears and no listen prompts occur
 - [ ] Manually verified on iPhone Safari that the built-in Dutch voice speaks Cards
