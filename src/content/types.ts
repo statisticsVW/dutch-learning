@@ -32,3 +32,6 @@ export type Pack = {
   title: string;
   cards: Card[];
 };
+
+/** A word in the bundled Dictionary. It has a Card's fields, but is not a Card until added to Mijn woorden. */
+export type DictionaryEntry = Card;

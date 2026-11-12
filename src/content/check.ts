@@ -1,11 +1,13 @@
 // The content check: turns the Curator's Pack files into validated content,
 // or into a plain-language list of what needs fixing. Runs at build time.
 import { parse } from 'yaml';
-import { ARTICLES, PARTS_OF_SPEECH, type Article, type Card, type Pack, type PartOfSpeech } from './types.ts';
+import { ARTICLES, PARTS_OF_SPEECH, type Article, type Card, type DictionaryEntry, type Pack, type PartOfSpeech } from './types.ts';
 
 export type PackFile = { path: string; text: string };
 
 export type CheckResult = { ok: true; packs: Pack[] } | { ok: false; errors: string[] };
+
+export type DictionaryCheckResult = { ok: true; entries: DictionaryEntry[] } | { ok: false; errors: string[] };
 
 /**
  * What Wiktionary says about each Dutch noun's article, keyed by the word as Wiktionary spells it.
@@ -41,17 +43,56 @@ export function formatErrors(errors: string[]): string {
   return `The content check found ${errors.length} problem(s):\n\n${errors.map((e) => `- ${e}`).join('\n')}`;
 }
 
-function checkPackFile(file: PackFile, wiktionary: ArticleSnapshot, errors: string[]): Pack | undefined {
-  let data: unknown;
+/**
+ * Checks the Dictionary file: every entry follows the Card rules (including de/het against Wiktionary),
+ * no word appears twice, and ids are unique across the Dictionary and the already-checked Packs,
+ * because the Learner's progress on a word he adds is kept under its id.
+ */
+export function checkDictionary(file: PackFile, wiktionary: ArticleSnapshot, packs: Pack[]): DictionaryCheckResult {
+  const errors: string[] = [];
+  const data = parseYaml(file, errors);
+  if (errors.length > 0) return { ok: false, errors };
+
+  const rawEntries = isRecord(data) ? data.entries : undefined;
+  if (!Array.isArray(rawEntries) || rawEntries.length === 0) {
+    return { ok: false, errors: [`${file.path}: the Dictionary needs an "entries" list with at least one entry.`] };
+  }
+
+  const entries: DictionaryEntry[] = [];
+  rawEntries.forEach((raw, index) => {
+    const example = isRecord(raw) && isText(raw.dutch) ? `dict-${slugOf(raw.dutch)}` : 'dict-woord';
+    const entry = checkCard(raw, index, file.path, example, wiktionary, errors);
+    if (entry) entries.push(entry);
+  });
+  checkNoDuplicateCards(entries, file.path, 'the Dictionary', errors);
+
+  const packOf = new Map(packs.flatMap((p) => p.cards.map((c) => [c.id, p.id] as const)));
+  const seen = new Set<string>();
+  for (const { id } of entries) {
+    if (seen.has(id)) errors.push(`${file.path}: Card id "${id}" is used more than once. Every Card id must be unique.`);
+    else if (packOf.has(id)) errors.push(`${file.path}: Card id "${id}" is already used by a Card in the Pack "${packOf.get(id)}". Every Card id must be unique.`);
+    seen.add(id);
+  }
+
+  return errors.length > 0 ? { ok: false, errors } : { ok: true, entries };
+}
+
+/** The file's YAML, or undefined with a plain-language error when it does not parse. */
+function parseYaml(file: PackFile, errors: string[]): unknown {
   try {
-    data = parse(file.text);
+    return parse(file.text);
   } catch (e) {
     const detail = e instanceof Error ? e.message.split('\n')[0] : String(e);
     errors.push(`${file.path}: this file is not valid YAML (${detail}). Check indentation, colons and brackets.`);
     return undefined;
   }
+}
 
+function checkPackFile(file: PackFile, wiktionary: ArticleSnapshot, errors: string[]): Pack | undefined {
   const before = errors.length;
+  const data = parseYaml(file, errors);
+  if (errors.length > before) return undefined;
+
   const fileError = (message: string) => errors.push(`${file.path}: ${message}`);
   if (!isRecord(data)) {
     fileError('the file should describe one Pack, starting with "title:" and "cards:".');
@@ -67,18 +108,19 @@ function checkPackFile(file: PackFile, wiktionary: ArticleSnapshot, errors: stri
     fileError('the Pack needs a "cards" list with at least one Card.');
   } else {
     rawCards.forEach((raw, index) => {
-      const card = checkCard(raw, index, file.path, wiktionary, errors);
+      const card = checkCard(raw, index, file.path, `${packIdFromPath(file.path)}-${String(index + 1).padStart(2, '0')}`, wiktionary, errors);
       if (card) cards.push(card);
     });
   }
 
-  checkNoDuplicateCards(cards, file.path, errors);
+  checkNoDuplicateCards(cards, file.path, 'this Pack', errors);
 
   if (errors.length > before) return undefined;
   return { id: packIdFromPath(file.path), title: title as string, cards };
 }
 
-function checkCard(raw: unknown, index: number, path: string, wiktionary: ArticleSnapshot, errors: string[]): Card | undefined {
+/** `idExample` is the id suggested when one is missing. */
+function checkCard(raw: unknown, index: number, path: string, idExample: string, wiktionary: ArticleSnapshot, errors: string[]): Card | undefined {
   const label = isRecord(raw) && isText(raw.id) ? `Card ${raw.id}` : `Card #${index + 1}`;
   const cardError = (message: string) => errors.push(`${path}, ${label}: ${message}`);
   if (!isRecord(raw)) {
@@ -88,7 +130,7 @@ function checkCard(raw: unknown, index: number, path: string, wiktionary: Articl
 
   const before = errors.length;
   const { id, dutch, pos, article } = raw;
-  if (!isText(id)) cardError(`"id" is missing (every Card needs a unique id, like ${packIdFromPath(path)}-${String(index + 1).padStart(2, '0')}).`);
+  if (!isText(id)) cardError(`"id" is missing (every Card needs a unique id, like ${idExample}).`);
   if (!isText(dutch)) cardError('"dutch" is missing (it should be the Dutch word or phrase).');
 
   const english = typeof raw.english === 'string' ? [raw.english] : raw.english;
@@ -182,15 +224,18 @@ function isArticleList(entry: ArticleSnapshot[string]): entry is readonly Articl
   return Array.isArray(entry);
 }
 
-/** The same word (and article) twice in one Pack is a duplicate; across Packs it is fine. */
-function checkNoDuplicateCards(cards: Card[], path: string, errors: string[]) {
+/** The Learner's own Pack (see src/dictionary/my-words.ts); a Pack file may not take its id. */
+const MY_WORDS_PACK_ID = 'mijn-woorden';
+
+/** The same word (and article) twice in one Pack, or in the Dictionary, is a duplicate; across Packs it is fine. */
+function checkNoDuplicateCards(cards: Card[], path: string, place: string, errors: string[]) {
   const firstCard = new Map<string, Card>();
   for (const card of cards) {
     const key = [card.dutch.toLowerCase(), card.pos, card.article ?? ''].join('|');
     const first = firstCard.get(key);
     if (first) {
       errors.push(
-        `${path}, Card ${card.id}: "${card.dutch}" is already in this Pack as Card ${first.id}. Remove one of them, or put both meanings in one Card.`,
+        `${path}, Card ${card.id}: "${card.dutch}" is already in ${place} as Card ${first.id}. Remove one of them, or put both meanings in one Card.`,
       );
     } else firstCard.set(key, card);
   }
@@ -200,7 +245,8 @@ function checkUniquePackIds(checked: CheckedPack[], errors: string[]) {
   const firstSeenIn = new Map<string, string>();
   for (const { path, pack } of checked) {
     const seen = firstSeenIn.get(pack.id);
-    if (seen) errors.push(`${path}: another Pack file (${seen}) has the same name. Rename one of them.`);
+    if (pack.id === MY_WORDS_PACK_ID) errors.push(`${path}: the name "${MY_WORDS_PACK_ID}" is kept for the Learner's own Pack, Mijn woorden. Rename the file.`);
+    else if (seen) errors.push(`${path}: another Pack file (${seen}) has the same name. Rename one of them.`);
     else firstSeenIn.set(pack.id, path);
   }
 }
@@ -227,4 +273,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isText(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
+}
+
+/** An id-friendly form of a Dutch word: "dank je wel" → "dank-je-wel", "één" → "een". */
+function slugOf(dutch: string): string {
+  return dutch
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 }

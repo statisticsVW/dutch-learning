@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { checkContent, type ArticleSnapshot } from './check';
+import { checkContent, checkDictionary, type ArticleSnapshot } from './check';
+import type { Pack } from './types';
 
 // A tiny stand-in for the committed Wiktionary snapshot.
 const wiktionary: ArticleSnapshot = {
@@ -153,6 +154,12 @@ cards:
     ]);
   });
 
+  it('keeps the Pack name mijn-woorden for the Learner’s own Pack', () => {
+    const errors = errorsOf(checkWithTestSnapshot([{ ...food, path: 'content/packs/mijn-woorden.yaml' }]));
+
+    expect(errors).toEqual([`content/packs/mijn-woorden.yaml: the name "mijn-woorden" is kept for the Learner's own Pack, Mijn woorden. Rename the file.`]);
+  });
+
   it('fails when there are no Pack files at all', () => {
     expect(errorsOf(checkWithTestSnapshot([]))).toEqual(['No Pack files were found in content/packs.']);
   });
@@ -291,5 +298,81 @@ cards:
 
       expect(result.ok ? [] : result.errors).toEqual([]);
     });
+  });
+});
+
+describe('checkDictionary', () => {
+  const DICTIONARY_PATH = 'content/dictionary/dictionary.yaml';
+  const dictionary = (...entries: string[]) => ({ path: DICTIONARY_PATH, text: `entries:\n${entries.map((e) => `  - ${e}\n`).join('')}` });
+  const packs: Pack[] = [{ id: 'hello', title: 'Hello', cards: [{ id: 'hello-05', dutch: 'naam', english: ['name'], pos: 'noun', article: 'de' }] }];
+  const check = (file: { path: string; text: string }) => checkDictionary(file, wiktionary, packs);
+  const errorsOfDictionary = (result: ReturnType<typeof checkDictionary>) => {
+    if (result.ok) throw new Error('expected the check to fail');
+    return result.errors;
+  };
+
+  it('turns a valid Dictionary file into entries shaped like Cards', () => {
+    const result = check(
+      dictionary('{ id: dict-boek, dutch: boek, english: book, pos: noun, article: het }', '{ id: dict-ja, dutch: ja, english: yes, pos: interjection }'),
+    );
+
+    expect(result).toEqual({
+      ok: true,
+      entries: [
+        { id: 'dict-boek', dutch: 'boek', english: ['book'], pos: 'noun', article: 'het' },
+        { id: 'dict-ja', dutch: 'ja', english: ['yes'], pos: 'interjection' },
+      ],
+    });
+  });
+
+  it('checks entries with the Card rules, including de/het against Wiktionary', () => {
+    const errors = errorsOfDictionary(
+      check(dictionary('{ id: dict-boek, dutch: boek, english: book, pos: noun, article: de }', '{ id: dict-ja, dutch: ja, pos: interjection }')),
+    );
+
+    expect(errors).toEqual([
+      `${DICTIONARY_PATH}, Card dict-boek: "boek" says de, but Wiktionary says het.`,
+      `${DICTIONARY_PATH}, Card dict-ja: "english" is missing (give one meaning, or a list of meanings).`,
+    ]);
+  });
+
+  it('suggests a Dictionary-style id when one is missing', () => {
+    const errors = errorsOfDictionary(check(dictionary('{ dutch: ja, english: yes, pos: interjection }')));
+
+    expect(errors).toEqual([`${DICTIONARY_PATH}, Card #1: "id" is missing (every Card needs a unique id, like dict-ja).`]);
+  });
+
+  it('rejects ids used twice in the Dictionary or already used by a Pack Card', () => {
+    const errors = errorsOfDictionary(
+      check(
+        dictionary(
+          '{ id: dict-ja, dutch: ja, english: yes, pos: interjection }',
+          '{ id: dict-ja, dutch: nee, english: no, pos: interjection }',
+          '{ id: hello-05, dutch: boek, english: book, pos: noun, article: het }',
+        ),
+      ),
+    );
+
+    expect(errors).toEqual([
+      `${DICTIONARY_PATH}: Card id "dict-ja" is used more than once. Every Card id must be unique.`,
+      `${DICTIONARY_PATH}: Card id "hello-05" is already used by a Card in the Pack "hello". Every Card id must be unique.`,
+    ]);
+  });
+
+  it('rejects the same word twice', () => {
+    const errors = errorsOfDictionary(
+      check(dictionary('{ id: dict-ja, dutch: ja, english: yes, pos: interjection }', '{ id: dict-ja-2, dutch: Ja, english: yeah, pos: interjection }')),
+    );
+
+    expect(errors).toEqual([
+      `${DICTIONARY_PATH}, Card dict-ja-2: "Ja" is already in the Dictionary as Card dict-ja. Remove one of them, or put both meanings in one Card.`,
+    ]);
+  });
+
+  it('explains a file that is not a list of entries', () => {
+    expect(errorsOfDictionary(check({ path: DICTIONARY_PATH, text: 'words: []' }))).toEqual([
+      `${DICTIONARY_PATH}: the Dictionary needs an "entries" list with at least one entry.`,
+    ]);
+    expect(errorsOfDictionary(check({ path: DICTIONARY_PATH, text: 'entries: [oops' }))[0]).toMatch(/is not valid YAML/);
   });
 });

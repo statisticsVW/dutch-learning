@@ -5,3 +5,9 @@ declare module 'virtual:packs' {
   const packs: Pack[];
   export default packs;
 }
+
+declare module 'virtual:dictionary' {
+  import type { DictionaryEntry } from './content/types';
+  const entries: DictionaryEntry[];
+  export default entries;
+}

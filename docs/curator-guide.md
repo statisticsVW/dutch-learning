@@ -61,6 +61,24 @@ Fix the Card it names, commit again, and the check reruns. What the common messa
 | `is already in this Pack as Card …`               | The same word is in the Pack twice: delete one Card, or merge the meanings into one Card's `english` list. |
 | `Card id "…" is used more than once`              | Give the newer Card a fresh id. Don't change the id of a Card that has been live for a while. |
 | `another Pack file … has the same name`           | Two files differ only by `.yaml`/`.yml`: rename or merge them.                                 |
+| `the name "mijn-woorden" is kept`                  | That name belongs to the Learner's own Pack. Rename your file.                                 |
+| `is already used by a Card in the Pack …`         | A Dictionary entry has the same id as a Pack Card: give the Dictionary entry a fresh id.       |
+
+## The Dictionary
+
+The Learner can search the Dictionary and add words to his own Pack, Mijn woorden. It lives in
+[`content/dictionary/dictionary.yaml`](../content/dictionary/dictionary.yaml), one entry per line:
+
+```yaml
+entries:
+  - { id: dict-boek, dutch: boek, english: book, pos: noun, article: het }
+  - { id: dict-lezen, dutch: lezen, english: to read, pos: verb }
+```
+
+Entries have the same fields as Cards and the check applies the same rules. Ids must be unique
+across the Dictionary **and** all Packs; start them with `dict-`. Fixing an entry's meaning or
+spelling also fixes it in the Learner's Mijn woorden the next time he opens the Dictionary. See
+[`content/dictionary/README.md`](../content/dictionary/README.md) for its sources and licence.
 
 ## Where the de/het check comes from
 

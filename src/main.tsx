@@ -3,13 +3,17 @@ import packs from 'virtual:packs';
 import { App } from './App';
 import { systemClock } from './adapters/clock';
 import { createLocalProgressStore } from './adapters/progress-store';
+import { createLocalMyWordsStore } from './adapters/my-words-store';
 import { InstallGate } from './install/InstallGate';
 import { browserInstallStatus } from './install/installStatus';
 import './style.css';
 
+// The Dictionary is its own file in the build, fetched only when the Learner opens the Dictionary screen.
+const dictionary = { load: () => import('virtual:dictionary').then((m) => m.default), myWords: createLocalMyWordsStore(localStorage) };
+
 render(
   <InstallGate installStatus={browserInstallStatus()}>
-    <App packs={packs} store={createLocalProgressStore(localStorage)} clock={systemClock} />
+    <App packs={packs} store={createLocalProgressStore(localStorage)} clock={systemClock} dictionary={dictionary} />
   </InstallGate>,
   document.getElementById('app')!,
 );

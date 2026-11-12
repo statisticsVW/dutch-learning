@@ -1,0 +1,105 @@
+# The Dictionary: common Dutch words the Learner can search and add to Mijn woorden.
+# A small starter set; the full Dictionary replaces it in ticket 13. See README.md in this folder.
+# Each entry is checked like a Card: id (unique across all content, never reuse or change it),
+# dutch, english, pos, and for nouns an article (de or het) that must agree with Wiktionary.
+entries:
+  - { id: dict-hond, dutch: hond, english: dog, pos: noun, article: de }
+  - { id: dict-kat, dutch: kat, english: cat, pos: noun, article: de }
+  - { id: dict-paard, dutch: paard, english: horse, pos: noun, article: het }
+  - { id: dict-vis, dutch: vis, english: fish, pos: noun, article: de }
+  - { id: dict-vogel, dutch: vogel, english: bird, pos: noun, article: de }
+  - { id: dict-muis, dutch: muis, english: mouse, pos: noun, article: de }
+  - { id: dict-konijn, dutch: konijn, english: rabbit, pos: noun, article: het }
+  - { id: dict-appel, dutch: appel, english: apple, pos: noun, article: de }
+  - { id: dict-brood, dutch: brood, english: bread, pos: noun, article: het }
+  - { id: dict-kaas, dutch: kaas, english: cheese, pos: noun, article: de }
+  - { id: dict-melk, dutch: melk, english: milk, pos: noun, article: de }
+  - { id: dict-water, dutch: water, english: water, pos: noun, article: het }
+  - { id: dict-thee, dutch: thee, english: tea, pos: noun, article: de }
+  - { id: dict-ei, dutch: ei, english: egg, pos: noun, article: het }
+  - { id: dict-boek, dutch: boek, english: book, pos: noun, article: het }
+  - { id: dict-huis, dutch: huis, english: [house, home], pos: noun, article: het }
+  - { id: dict-school, dutch: school, english: school, pos: noun, article: de }
+  - { id: dict-tafel, dutch: tafel, english: table, pos: noun, article: de }
+  - { id: dict-stoel, dutch: stoel, english: chair, pos: noun, article: de }
+  - { id: dict-deur, dutch: deur, english: door, pos: noun, article: de }
+  - { id: dict-raam, dutch: raam, english: window, pos: noun, article: het }
+  - { id: dict-fiets, dutch: fiets, english: [bike, bicycle], pos: noun, article: de }
+  - { id: dict-trein, dutch: trein, english: train, pos: noun, article: de }
+  - { id: dict-stad, dutch: stad, english: [city, town], pos: noun, article: de }
+  - { id: dict-straat, dutch: straat, english: street, pos: noun, article: de }
+  - { id: dict-zon, dutch: zon, english: sun, pos: noun, article: de }
+  - { id: dict-maan, dutch: maan, english: moon, pos: noun, article: de }
+  - { id: dict-ster, dutch: ster, english: star, pos: noun, article: de }
+  - { id: dict-regen, dutch: regen, english: rain, pos: noun, article: de }
+  - { id: dict-boom, dutch: boom, english: tree, pos: noun, article: de }
+  - { id: dict-bloem, dutch: bloem, english: flower, pos: noun, article: de }
+  - { id: dict-kleur, dutch: kleur, english: [colour, color], pos: noun, article: de }
+  - { id: dict-tekening, dutch: tekening, english: drawing, pos: noun, article: de }
+  - { id: dict-potlood, dutch: potlood, english: pencil, pos: noun, article: het }
+  - { id: dict-schilderij, dutch: schilderij, english: painting, pos: noun, article: het }
+  - { id: dict-spel, dutch: spel, english: game, pos: noun, article: het }
+  - { id: dict-computer, dutch: computer, english: computer, pos: noun, article: de }
+  - { id: dict-telefoon, dutch: telefoon, english: phone, pos: noun, article: de }
+  - { id: dict-vriend, dutch: vriend, english: friend, pos: noun, article: de }
+  - { id: dict-moeder, dutch: moeder, english: mother, pos: noun, article: de }
+  - { id: dict-vader, dutch: vader, english: father, pos: noun, article: de }
+  - { id: dict-broer, dutch: broer, english: brother, pos: noun, article: de }
+  - { id: dict-zus, dutch: zus, english: sister, pos: noun, article: de }
+  - { id: dict-kind, dutch: kind, english: child, pos: noun, article: het }
+  - { id: dict-meisje, dutch: meisje, english: girl, pos: noun, article: het }
+  - { id: dict-jongen, dutch: jongen, english: boy, pos: noun, article: de }
+  - { id: dict-dag, dutch: dag, english: day, pos: noun, article: de }
+  - { id: dict-nacht, dutch: nacht, english: night, pos: noun, article: de }
+  - { id: dict-week, dutch: week, english: week, pos: noun, article: de }
+  - { id: dict-jaar, dutch: jaar, english: year, pos: noun, article: het }
+  - { id: dict-tijd, dutch: tijd, english: time, pos: noun, article: de }
+  - { id: dict-geld, dutch: geld, english: money, pos: noun, article: het }
+  - { id: dict-muziek, dutch: muziek, english: music, pos: noun, article: de }
+  - { id: dict-film, dutch: film, english: [film, movie], pos: noun, article: de }
+  - { id: dict-cafe, dutch: café, english: café, pos: noun, article: het }
+  - { id: dict-idee, dutch: idee, english: idea, pos: noun, article: het }
+  - { id: dict-reunie, dutch: reünie, english: reunion, pos: noun, article: de }
+  - { id: dict-museum, dutch: museum, english: museum, pos: noun, article: het }
+  - { id: dict-kamer, dutch: kamer, english: room, pos: noun, article: de }
+  - { id: dict-keuken, dutch: keuken, english: kitchen, pos: noun, article: de }
+  - { id: dict-tuin, dutch: tuin, english: garden, pos: noun, article: de }
+  - { id: dict-strand, dutch: strand, english: beach, pos: noun, article: het }
+  - { id: dict-zee, dutch: zee, english: sea, pos: noun, article: de }
+  - { id: dict-hand, dutch: hand, english: hand, pos: noun, article: de }
+  - { id: dict-hoofd, dutch: hoofd, english: head, pos: noun, article: het }
+  - { id: dict-oog, dutch: oog, english: eye, pos: noun, article: het }
+  - { id: dict-taal, dutch: taal, english: language, pos: noun, article: de }
+  - { id: dict-woord, dutch: woord, english: word, pos: noun, article: het }
+  - { id: dict-vraag, dutch: vraag, english: question, pos: noun, article: de }
+  - { id: dict-antwoord, dutch: antwoord, english: answer, pos: noun, article: het }
+  - { id: dict-feest, dutch: feest, english: party, pos: noun, article: het }
+  - { id: dict-verjaardag, dutch: verjaardag, english: birthday, pos: noun, article: de }
+  - { id: dict-cadeau, dutch: cadeau, english: [present, gift], pos: noun, article: het }
+  - { id: dict-zijn, dutch: zijn, english: to be, pos: verb }
+  - { id: dict-hebben, dutch: hebben, english: to have, pos: verb }
+  - { id: dict-gaan, dutch: gaan, english: to go, pos: verb }
+  - { id: dict-komen, dutch: komen, english: to come, pos: verb }
+  - { id: dict-eten, dutch: eten, english: to eat, pos: verb }
+  - { id: dict-drinken, dutch: drinken, english: to drink, pos: verb }
+  - { id: dict-spelen, dutch: spelen, english: to play, pos: verb }
+  - { id: dict-tekenen, dutch: tekenen, english: to draw, pos: verb }
+  - { id: dict-lezen, dutch: lezen, english: to read, pos: verb }
+  - { id: dict-schrijven, dutch: schrijven, english: to write, pos: verb }
+  - { id: dict-slapen, dutch: slapen, english: to sleep, pos: verb }
+  - { id: dict-praten, dutch: praten, english: [to talk, to speak], pos: verb }
+  - { id: dict-groot, dutch: groot, english: [big, large], pos: adjective }
+  - { id: dict-klein, dutch: klein, english: [small, little], pos: adjective }
+  - { id: dict-mooi, dutch: mooi, english: [beautiful, pretty], pos: adjective }
+  - { id: dict-leuk, dutch: leuk, english: [fun, nice], pos: adjective }
+  - { id: dict-blauw, dutch: blauw, english: blue, pos: adjective }
+  - { id: dict-rood, dutch: rood, english: red, pos: adjective }
+  - { id: dict-groen, dutch: groen, english: green, pos: adjective }
+  - { id: dict-een, dutch: één, english: one, pos: numeral }
+  - { id: dict-twee, dutch: twee, english: two, pos: numeral }
+  - { id: dict-drie, dutch: drie, english: three, pos: numeral }
+  - { id: dict-ja, dutch: ja, english: yes, pos: interjection }
+  - { id: dict-nee, dutch: nee, english: no, pos: interjection }
+  - { id: dict-hoi, dutch: hoi, english: hi, pos: interjection }
+  - { id: dict-dank-je-wel, dutch: dank je wel, english: thank you very much, pos: phrase }
+  - { id: dict-tot-ziens, dutch: tot ziens, english: goodbye, pos: phrase }

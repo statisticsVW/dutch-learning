@@ -114,3 +114,68 @@ button.quiet {
   font-size: 0.875rem;
   background: color-mix(in srgb, #f36c21 15%, transparent);
 }
+.dictionary-button {
+  width: 100%;
+  margin-top: 1rem;
+}
+.dictionary h1 {
+  margin: 0.5rem 0 1rem;
+}
+.dictionary h2 {
+  font-size: 1.125rem;
+  margin: 2rem 0 0.5rem;
+}
+.back {
+  padding-left: 0;
+}
+.muted {
+  color: var(--muted);
+}
+.search {
+  display: grid;
+  gap: 0.375rem;
+  color: var(--muted);
+}
+.search input {
+  font: inherit;
+  /* 16px or more stops iOS Safari zooming in on focus. */
+  font-size: max(1rem, 16px);
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  min-height: 44px;
+  box-sizing: border-box;
+  width: 100%;
+}
+.word-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+}
+.word-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.word {
+  display: grid;
+  min-width: 0;
+}
+.word-dutch {
+  font-weight: 600;
+}
+.word-english {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.not-found {
+  margin-top: 1rem;
+}
+.not-found p {
+  margin: 0.25rem 0;
+}
