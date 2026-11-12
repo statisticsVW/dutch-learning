@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import { App } from './App';
 import type { Pack } from './content/types';
 import { createMemoryProgressStore } from './adapters/progress-store';
@@ -67,5 +67,96 @@ describe('a first Burst', () => {
     render(<App packs={[animals]} store={store} clock={createFakeClock(new Date('2026-01-01T10:05:00Z'))} />);
 
     expect(screen.getByText('You know 1 Dutch word')).toBeTruthy();
+  });
+});
+
+describe('coming back after a gap', () => {
+  const DAY = 24 * 60 * 60 * 1000;
+
+  /** A first Burst that learns five Cards, then the app opened again `days` later. */
+  function comeBackAfter(days: number) {
+    const store = renderApp();
+    fireEvent.click(screen.getByRole('button', { name: /Animals/ }));
+    for (let i = 0; i < 5; i++) {
+      fireEvent.click(screen.getByRole('button', { name: meaningOf(shownDutch()) }));
+      fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    }
+    cleanup();
+    const clock = createFakeClock(new Date(new Date('2026-01-01T10:00:00Z').getTime() + days * DAY));
+    render(<App packs={[animals]} store={store} clock={clock} random={() => 0.5} />);
+    return store;
+  }
+
+  it('welcomes the Learner back and offers the fading Cards, without making them review first', () => {
+    comeBackAfter(30);
+
+    expect(screen.getByText(/Welcome back/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Review 5 fading Cards/ })).toBeTruthy();
+    expect(screen.getByText(/about 1 minute/)).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /Animals/ }));
+    expect(shownDutch()).toBe('de koe');
+  });
+
+  it('reviewing the fading Cards clears them', () => {
+    const store = comeBackAfter(30);
+    fireEvent.click(screen.getByRole('button', { name: /Review 5 fading Cards/ }));
+    for (let i = 0; i < 5; i++) {
+      fireEvent.click(screen.getByRole('button', { name: meaningOf(shownDutch()) }));
+      fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    }
+
+    expect(screen.getByText(/All reviewed/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Back to Packs' }));
+    expect(screen.queryByRole('button', { name: /fading/ })).toBeNull();
+    expect(store.saved).toHaveLength(10);
+  });
+
+  it('a short gap brings neither welcome back nor fading Cards', () => {
+    comeBackAfter(1);
+
+    expect(screen.queryByText(/Welcome back/)).toBeNull();
+    expect(screen.queryByRole('button', { name: /fading/ })).toBeNull();
+  });
+});
+
+describe('an installed app brought back from the background', () => {
+  const DAY = 24 * 60 * 60 * 1000;
+  const setVisibility = (state: 'hidden' | 'visible') => {
+    Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => state });
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+  };
+
+  it('starts a new Burst after a long time away, so the welcome back and fading Cards show', () => {
+    const store = createMemoryProgressStore();
+    const clock = createFakeClock(new Date('2026-01-01T10:00:00Z'));
+    render(<App packs={[animals]} store={store} clock={clock} random={() => 0.5} />);
+    fireEvent.click(screen.getByRole('button', { name: /Animals/ }));
+    for (let i = 0; i < 5; i++) {
+      fireEvent.click(screen.getByRole('button', { name: meaningOf(shownDutch()) }));
+      fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    }
+
+    setVisibility('hidden');
+    clock.advance(30 * DAY);
+    setVisibility('visible');
+
+    expect(screen.getByText(/Welcome back/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Review 5 fading Cards/ })).toBeTruthy();
+  });
+
+  it('carries on where it was after a short time away', () => {
+    const clock = createFakeClock(new Date('2026-01-01T10:00:00Z'));
+    render(<App packs={[animals]} store={createMemoryProgressStore()} clock={clock} random={() => 0.5} />);
+    fireEvent.click(screen.getByRole('button', { name: /Animals/ }));
+    const asked = shownDutch();
+
+    setVisibility('hidden');
+    clock.advance(60_000);
+    setVisibility('visible');
+
+    expect(shownDutch()).toBe(asked);
   });
 });

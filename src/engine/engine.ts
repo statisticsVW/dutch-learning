@@ -7,6 +7,11 @@ import type { Clock } from '../adapters/clock';
 export const NEW_CARDS_PER_GROUP = 5;
 export const MAX_NEW_CARDS_PER_BURST = 15;
 const OPTIONS_PER_PROMPT = 4;
+/** A rough pace for the review-time estimate: one prompt plus its feedback. */
+export const REVIEW_SECONDS_PER_CARD = 10;
+/** A gap since the last Burst of at least this long earns a welcome back. */
+export const WELCOME_BACK_AFTER_DAYS = 7;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** What the engine remembers about one Card. Stored as JSON, keyed by Card id. */
 export type CardProgress = {
@@ -26,12 +31,16 @@ export type Prompt = { kind: 'prompt'; cardId: string; mode: 'recognise'; dutch:
 export type GroupDone = { kind: 'group-done'; canDoMore: boolean };
 export type AnswerResult = { verdict: 'correct' | 'wrong'; correctAnswer: string; progress: Progress };
 export type PackSummary = { id: string; title: string; learned: number; total: number };
-export type Overview = { wordsKnown: number; packs: PackSummary[] };
+/** Cards due for review, and roughly how many minutes reviewing them all takes. */
+export type FadingSummary = { count: number; minutes: number };
+export type Overview = { wordsKnown: number; fading: FadingSummary; welcomeBack: boolean; packs: PackSummary[] };
 
 export type Engine = {
   overview(): Overview;
   /** Starts a group of up to five new Cards from a Pack ("more" calls this again). */
   startNewCards(packId: string): void;
+  /** Starts reviewing every fading Card, most useful first. Optional: the Learner can skip it. */
+  startReview(): void;
   nextPrompt(): Prompt | GroupDone;
   /** Answers the current prompt with the chosen option. */
   answer(option: string): AnswerResult;
@@ -47,9 +56,12 @@ export function createEngine({ packs, progress: saved, clock, random = Math.rand
   const allCards = packs.flatMap((p) => p.cards);
   /** New Cards answered for the first time in this Burst (counts toward the cap). */
   let introducedThisBurst = 0;
-  let packId: string | undefined;
+  /** The Pack new Cards come from; undefined while reviewing (a review offers no "more"). */
+  let newCardsPackId: string | undefined;
   let queue: Card[] = [];
   let current: Prompt | undefined;
+  // Decided once, when the Burst starts: answering during this Burst doesn't take it away.
+  const welcomeBack = gapSinceLastBurst(progress, clock.now()) >= WELCOME_BACK_AFTER_DAYS * DAY_MS;
 
   const findPack = (id: string) => {
     const pack = packs.find((p) => p.id === id);
@@ -58,7 +70,14 @@ export function createEngine({ packs, progress: saved, clock, random = Math.rand
   };
   const isLearned = (card: Card) => progress.cards[card.id]?.lastCorrect === true;
   const unseen = (pack: Pack) => pack.cards.filter((c) => !progress.cards[c.id]);
-  const canDoMore = () => packId !== undefined && introducedThisBurst < MAX_NEW_CARDS_PER_BURST && unseen(findPack(packId)).length > 0;
+  const fadingCards = () => {
+    const now = clock.now().getTime();
+    return allCards.filter((c) => {
+      const saved = progress.cards[c.id];
+      return saved !== undefined && new Date(saved.due).getTime() <= now;
+    });
+  };
+  const canDoMore = () => newCardsPackId !== undefined && introducedThisBurst < MAX_NEW_CARDS_PER_BURST && unseen(findPack(newCardsPackId)).length > 0;
 
   function buildPrompt(card: Card): Prompt {
     const answer = meaningOf(card);
@@ -79,15 +98,24 @@ export function createEngine({ packs, progress: saved, clock, random = Math.rand
   return {
     overview() {
       const summaries = packs.map((p) => ({ id: p.id, title: p.title, learned: p.cards.filter(isLearned).length, total: p.cards.length }));
-      return { wordsKnown: allCards.filter(isLearned).length, packs: summaries };
+      const count = fadingCards().length;
+      const fading = { count, minutes: Math.ceil((count * REVIEW_SECONDS_PER_CARD) / 60) };
+      return { wordsKnown: allCards.filter(isLearned).length, fading, welcomeBack, packs: summaries };
     },
 
     startNewCards(id) {
       const pack = findPack(id);
-      packId = id;
+      newCardsPackId = id;
       const room = Math.min(NEW_CARDS_PER_GROUP, MAX_NEW_CARDS_PER_BURST - introducedThisBurst);
       // Cards left unanswered by a stopped group are still unseen, so they come first again.
       queue = unseen(pack).slice(0, Math.max(0, room));
+      current = undefined;
+    },
+
+    startReview() {
+      newCardsPackId = undefined;
+      const now = clock.now().getTime();
+      queue = fadingCards().sort((a, b) => usefulness(progress.cards[b.id], now) - usefulness(progress.cards[a.id], now));
       current = undefined;
     },
 
@@ -114,6 +142,20 @@ export function createEngine({ packs, progress: saved, clock, random = Math.rand
 
     progress: () => structuredClone(progress),
   };
+}
+
+/**
+ * How useful reviewing a Card is now: how far past due it is, relative to how well it was known.
+ * A weak Card a little overdue is closer to being forgotten than a strong Card long overdue.
+ */
+function usefulness({ due, memory }: CardProgress, now: number): number {
+  return (now - new Date(due).getTime()) / DAY_MS / Math.max(memory.stability, 0.01);
+}
+
+/** Time since the latest answer in any earlier Burst, or 0 when there has never been one. */
+function gapSinceLastBurst(progress: Progress, now: Date): number {
+  const answered = Object.values(progress.cards).flatMap((c) => (c.memory.lastReview ? [new Date(c.memory.lastReview).getTime()] : []));
+  return answered.length === 0 ? 0 : now.getTime() - Math.max(...answered);
 }
 
 function toFsrs({ due, memory: m }: CardProgress): FsrsCard {
