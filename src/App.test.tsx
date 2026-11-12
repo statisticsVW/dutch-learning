@@ -219,3 +219,107 @@ describe('listening', () => {
     expect(shownDutch()).toBe('de hond');
   });
 });
+
+describe('typed recall', () => {
+  const fruit: Pack = {
+    id: 'fruit',
+    title: 'Fruit',
+    cards: [{ id: 'fruit-01', dutch: 'appel', english: ['apple'], pos: 'noun', article: 'de' }],
+  };
+  /** A Learner who knows "de appel" well, and it is due for review. */
+  function renderWithStrongAppel() {
+    const memory = { stability: 20, difficulty: 5, scheduledDays: 20, learningSteps: 0, reps: 3, lapses: 0, state: 2, lastReview: '2026-01-01T10:00:00.000Z' };
+    const store = createMemoryProgressStore({ version: 1, cards: { 'fruit-01': { due: '2026-01-21T10:00:00.000Z', lastCorrect: true, memory } } });
+    render(<App packs={[fruit]} store={store} clock={createFakeClock(new Date('2026-01-22T10:00:00Z'))} random={() => 0.5} />);
+    fireEvent.click(screen.getByRole('button', { name: /Review 1 fading Card/ }));
+    return store;
+  }
+  const typeAndCheck = (text: string) => {
+    fireEvent.input(screen.getByRole('textbox', { name: 'Type it in Dutch' }), { target: { value: text } });
+    fireEvent.click(screen.getByRole('button', { name: 'Check' }));
+  };
+
+  it('shows the English and takes the Dutch typed, with an iPhone-friendly field', () => {
+    renderWithStrongAppel();
+
+    expect(screen.getByText('apple')).toBeTruthy();
+    expect(screen.queryByText(/appel/)).toBeNull();
+    const field = screen.getByRole('textbox', { name: 'Type it in Dutch' });
+    expect(field.getAttribute('autocapitalize')).toBe('off');
+    expect(field.getAttribute('autocorrect')).toBe('off');
+  });
+
+  it('typing "het appel" for "de appel" is almost, and shows the right article kindly', () => {
+    const store = renderWithStrongAppel();
+
+    typeAndCheck('het appel');
+
+    expect(screen.getByText(/Almost!/)).toBeTruthy();
+    expect(screen.getByText(/it’s de appel/)).toBeTruthy();
+    expect(store.saved.at(-1)!.cards['fruit-01'].lastCorrect).toBe(false);
+  });
+
+  it('a correct answer, typed without worrying about capitals', () => {
+    renderWithStrongAppel();
+
+    typeAndCheck('De Appel');
+
+    expect(screen.getByText('Goed zo!')).toBeTruthy();
+  });
+
+  it('a wrong answer shows the right one', () => {
+    renderWithStrongAppel();
+
+    typeAndCheck('de peer');
+
+    expect(screen.getByText(/Not quite: it’s de appel/)).toBeTruthy();
+  });
+});
+
+describe('typed recall timing and notes', () => {
+  const pair: Pack = {
+    id: 'pair',
+    title: 'Pair',
+    cards: [
+      { id: 'pair-01', dutch: 'appel', english: ['apple'], pos: 'noun', article: 'de', cognate: true },
+      { id: 'pair-02', dutch: 'peer', english: ['pear'], pos: 'noun', article: 'de' },
+    ],
+  };
+  function startReview(clock = createFakeClock(new Date('2026-01-22T10:00:00Z'))) {
+    const memory = { stability: 20, difficulty: 5, scheduledDays: 20, learningSteps: 0, reps: 3, lapses: 0, state: 2, lastReview: '2026-01-01T10:00:00.000Z' };
+    const due = (stability: number) => ({ due: '2026-01-21T10:00:00.000Z', lastCorrect: true, memory: { ...memory, stability } });
+    const store = createMemoryProgressStore({ version: 1, cards: { 'pair-01': due(20), 'pair-02': due(21) } });
+    render(<App packs={[pair]} store={store} clock={clock} random={() => 0.5} />);
+    fireEvent.click(screen.getByRole('button', { name: /Review 2 fading Cards/ }));
+    return { store, clock };
+  }
+  const typeAndCheck = (text: string) => {
+    fireEvent.input(screen.getByRole('textbox', { name: 'Type it in Dutch' }), { target: { value: text } });
+    fireEvent.click(screen.getByRole('button', { name: 'Check' }));
+  };
+
+  it('time spent reading the feedback does not count against the next typed answer', () => {
+    const lingered = startReview();
+    typeAndCheck('de appel');
+    lingered.clock.advance(60_000); // reading the feedback for a minute
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    typeAndCheck('de peer');
+    const afterLingering = lingered.store.saved.at(-1)!.cards['pair-02'].due;
+    cleanup();
+
+    const quick = startReview();
+    typeAndCheck('de appel');
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    typeAndCheck('de peer');
+
+    expect(afterLingering).toBe(new Date(new Date(quick.store.saved.at(-1)!.cards['pair-02'].due).getTime() + 60_000).toISOString());
+  });
+
+  it('a Cognate note waits until after a typed answer, so it does not give the answer away', () => {
+    startReview();
+
+    expect(screen.queryByText(/You already know this one/)).toBeNull();
+    typeAndCheck('de appel');
+    expect(screen.getByText(/You already know this one/)).toBeTruthy();
+  });
+});

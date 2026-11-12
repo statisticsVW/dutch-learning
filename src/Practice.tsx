@@ -16,10 +16,11 @@ type Props = {
   onDone: () => void;
 };
 
-/** One group of new Cards, or a review: recognise and listen prompts, feedback after each answer, then "more" or back. */
+/** One group of new Cards, or a review: recognise, listen and typed prompts, feedback after each answer, then "more" or back. */
 export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }: Props) {
-  const [feedback, setFeedback] = useState<(AnswerResult & Pick<Prompt, 'cardId' | 'dutch' | 'notes'>) | undefined>();
-  const next = engine.nextPrompt();
+  const [feedback, setFeedback] = useState<(AnswerResult & Pick<Prompt, 'cardId' | 'mode' | 'dutch' | 'english' | 'notes'>) | undefined>();
+  // Not asked for while feedback shows: the engine times a typed answer from when its prompt is first asked for.
+  const next = feedback ? undefined : engine.nextPrompt();
 
   // A listen prompt plays as soon as it appears (once per prompt). Speaking from the tap that
   // brought it up, where possible, keeps iOS happy: it only lets taps start speech at first.
@@ -30,7 +31,7 @@ export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }
     speak?.(prompt.dutch);
   };
   useEffect(() => {
-    if (!feedback) playIfListening(next);
+    if (next) playIfListening(next);
   });
 
   if (feedback) {
@@ -38,9 +39,10 @@ export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }
       <section class="practice">
         <DutchHeading dutch={feedback.dutch} speak={speak} />
         <p class={`feedback ${feedback.verdict}`} role="status">
-          {feedback.verdict === 'correct' ? 'Goed zo!' : `Not quite: it means "${feedback.correctAnswer}".`}
+          {feedbackMessage(feedback)}
         </p>
-        <AnswerNotes cardId={feedback.cardId} dutch={feedback.dutch} meaning={feedback.correctAnswer} notes={feedback.notes} />
+        {feedback.mode === 'recall' && feedback.notes?.cognate && <PromptNote notes={{ cognate: true }} />}
+        <AnswerNotes cardId={feedback.cardId} dutch={feedback.dutch} meaning={feedback.english} notes={feedback.notes} />
         <button
           class="primary"
           autofocus
@@ -55,6 +57,7 @@ export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }
     );
   }
 
+  if (!next) return null; // not reached: without feedback there is always a next step
   if (next.kind === 'group-done') {
     return (
       <section class="practice">
@@ -70,9 +73,17 @@ export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }
     );
   }
 
+  const respond = (response: string) => {
+    const result = engine.answer(response);
+    onAnswered(result);
+    setFeedback({ ...result, cardId: next.cardId, mode: next.mode, dutch: next.dutch, english: next.english, notes: next.notes });
+  };
+
   return (
     <section class="practice">
-      {next.mode === 'listen' ? (
+      {next.mode === 'recall' ? (
+        <RecallPrompt key={next.cardId} english={next.english} onCheck={respond} />
+      ) : next.mode === 'listen' ? (
         <>
           <h2 class="prompt-listen">Listen: what does it mean?</h2>
           <button class="play" onClick={() => speak?.(next.dutch)}>
@@ -82,27 +93,64 @@ export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }
       ) : (
         <DutchHeading dutch={next.dutch} speak={speak} />
       )}
-      <PromptNote notes={next.notes} />
-      <div class="options">
-        {next.options.map((option) => (
-          <button
-            key={option}
-            class="option"
-            onClick={() => {
-              const result = engine.answer(option);
-              onAnswered(result);
-              setFeedback({ ...result, cardId: next.cardId, dutch: next.dutch, notes: next.notes });
-            }}
-          >
-            {option}
-          </button>
-        ))}
-      </div>
+      {/* Before a typed answer, a Cognate or False-friend note would give it away; it shows with the feedback instead. */}
+      {next.mode !== 'recall' && <PromptNote notes={next.notes} />}
+      {next.options.length > 0 && (
+        <div class="options">
+          {next.options.map((option) => (
+            <button key={option} class="option" onClick={() => respond(option)}>
+              {option}
+            </button>
+          ))}
+        </div>
+      )}
       <button class="quiet" onClick={onDone}>
         Stop
       </button>
     </section>
   );
+}
+
+/** See the English, type the Dutch. The field stays out of the iPhone keyboard's way (no autocorrect or capitals). */
+function RecallPrompt({ english, onCheck }: { english: string; onCheck: (typed: string) => void }) {
+  const [typed, setTyped] = useState('');
+  return (
+    <form
+      class="recall"
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (typed.trim()) onCheck(typed);
+      }}
+    >
+      <h2 class="prompt-english">{english}</h2>
+      <label class="recall-label" for="recall-answer">
+        Type it in Dutch
+      </label>
+      <input
+        id="recall-answer"
+        class="recall-input"
+        type="text"
+        lang="nl"
+        autofocus
+        autocomplete="off"
+        autocapitalize="off"
+        autocorrect="off"
+        spellcheck={false}
+        enterkeyhint="done"
+        value={typed}
+        onInput={(event) => setTyped(event.currentTarget.value)}
+      />
+      <button class="primary" type="submit" disabled={!typed.trim()}>
+        Check
+      </button>
+    </form>
+  );
+}
+
+function feedbackMessage({ verdict, mode, correctAnswer }: { verdict: AnswerResult['verdict']; mode: Prompt['mode']; correctAnswer: string }): string {
+  if (verdict === 'correct') return 'Goed zo!';
+  if (verdict === 'almost') return `Almost! The word is right; it’s ${correctAnswer}.`;
+  return mode === 'recall' ? `Not quite: it’s ${correctAnswer}.` : `Not quite: it means "${correctAnswer}".`;
 }
 
 /** The Dutch, written, with a button to hear it when the device can speak Dutch. */

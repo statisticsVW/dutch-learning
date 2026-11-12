@@ -487,3 +487,31 @@ button.quiet {
   box-sizing: border-box;
   width: 100%;
 }
+.recall {
+  display: grid;
+  gap: 0.75rem;
+}
+.prompt-english {
+  font-size: 1.75rem;
+  text-align: center;
+  margin: 1rem 0 0.5rem;
+}
+.recall-label {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+/* 16px or more stops iOS Safari zooming in when the field is focused. */
+.recall-input {
+  font: inherit;
+  font-size: 1.25rem;
+  padding: 0.75rem 1rem;
+  min-height: 44px;
+  border-radius: 0.75rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--fg);
+}
+.recall-input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}

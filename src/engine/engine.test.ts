@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Card, Pack } from '../content/types';
-import { createEngine, emptyProgress, REVIEW_SECONDS_PER_CARD, WELCOME_BACK_AFTER_DAYS, type CardProgress, type Engine, type Progress, type Prompt } from './engine';
+import { createEngine, emptyProgress, FAST_RECALL_SECONDS, RECALL_AFTER_STABILITY_DAYS, REVIEW_SECONDS_PER_CARD, WELCOME_BACK_AFTER_DAYS, type CardProgress, type Engine, type Progress, type Prompt } from './engine';
 import { createFakeClock } from '../adapters/clock';
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -46,7 +46,9 @@ function expectPrompt(engine: Engine): Prompt {
   return next;
 }
 
+/** The right answer: the meaning to pick, or the Dutch to type for recall. */
 function correctOption(packs: Pack[], prompt: Prompt): string {
+  if (prompt.mode === 'recall') return prompt.dutch;
   const c = packs.flatMap((p) => p.cards).find((x) => x.id === prompt.cardId)!;
   return c.english[0];
 }
@@ -545,5 +547,127 @@ describe('listen mode', () => {
     engine.answer('nonsense');
 
     expect(modesOfGroup(engine)).not.toContain('listen');
+  });
+});
+
+describe('typed recall', () => {
+  const now = new Date('2026-03-01T10:00:00Z');
+  const strong = RECALL_AFTER_STABILITY_DAYS;
+  const words: Pack = {
+    id: 'words',
+    title: 'Words',
+    cards: [
+      card('words-01', 'hond', 'dog'),
+      card('words-02', 'café', 'café', { article: 'het' }),
+      card('words-03', 'hallo', 'hello', { pos: 'interjection', article: undefined }),
+      card('words-04', 'kat', 'cat'),
+    ],
+  };
+  /** A review of the given Cards, all due now and as strong as given. */
+  function reviewOf(stabilities: Record<string, number>, audio = false) {
+    const cards = Object.fromEntries(Object.entries(stabilities).map(([id, s]) => [id, reviewed('2026-02-28T10:00:00Z', s)]));
+    const clock = createFakeClock(now);
+    const { engine } = engineWith([words], { version: 1, cards }, clock, () => audio);
+    engine.startReview();
+    return { engine, clock };
+  }
+
+  it('a strong Card is asked by typing: the English is shown, the Dutch is typed, no options', () => {
+    const { engine } = reviewOf({ 'words-01': strong });
+
+    expect(expectPrompt(engine)).toMatchObject({ mode: 'recall', english: 'dog', dutch: 'de hond', options: [] });
+  });
+
+  it('weaker Cards stay multiple choice (recognise or listen), even with audio', () => {
+    const { engine } = reviewOf({ 'words-01': strong - 0.5 }, true);
+
+    expect(expectPrompt(engine).mode).not.toBe('recall');
+  });
+
+  it('shows every meaning of a Card with several', () => {
+    const packs: Pack[] = [{ id: 'p', title: 'P', cards: [card('p-01', 'dank je', '', { pos: 'phrase', article: undefined, english: ['thank you', 'thanks'] })] }];
+    const { engine } = engineWith(packs, { version: 1, cards: { 'p-01': reviewed('2026-02-28T10:00:00Z', strong) } }, createFakeClock(now));
+    engine.startReview();
+
+    expect(expectPrompt(engine)).toMatchObject({ mode: 'recall', english: 'thank you, thanks' });
+  });
+
+  it.each([['de hond'], ['De Hond'], ['  de   hond '], ['DE HOND']])('ignores case and spacing: "%s" is correct', (typed) => {
+    const { engine } = reviewOf({ 'words-01': strong });
+
+    expect(engine.answer(typed)).toMatchObject({ verdict: 'correct', correctAnswer: 'de hond' });
+  });
+
+  it('ignores accents both ways', () => {
+    expect(reviewOf({ 'words-02': strong }).engine.answer('het cafe').verdict).toBe('correct');
+    expect(reviewOf({ 'words-01': strong }).engine.answer('de hónd').verdict).toBe('correct');
+  });
+
+  it('forgives what an iPhone keyboard does: curly apostrophes, the ĳ ligature, and end punctuation', () => {
+    const packs: Pack[] = [
+      {
+        id: 'p',
+        title: 'P',
+        cards: [
+          card('p-01', "auto's", 'cars', { pos: 'phrase', article: undefined }),
+          card('p-02', 'ijs', 'ice cream', { article: 'het' }),
+          card('p-03', 'hoe gaat het?', 'how are you?', { pos: 'phrase', article: undefined }),
+        ],
+      },
+    ];
+    const typed = (id: string, text: string) => {
+      const { engine } = engineWith(packs, { version: 1, cards: { [id]: reviewed('2026-02-28T10:00:00Z', strong) } }, createFakeClock(now));
+      engine.startReview();
+      return engine.answer(text).verdict;
+    };
+
+    expect(typed('p-01', 'auto’s')).toBe('correct');
+    expect(typed('p-02', 'het ĳs')).toBe('correct');
+    expect(typed('p-03', 'Hoe gaat het')).toBe('correct');
+    expect(typed('p-03', 'hoe gaat het ?')).toBe('correct');
+  });
+
+  it('a word without an article is typed on its own', () => {
+    expect(reviewOf({ 'words-03': strong }).engine.answer('Hallo').verdict).toBe('correct');
+  });
+
+  it('the right noun with the wrong or a missing article is "almost", shows the right article, and is scheduled like a wrong answer', () => {
+    const wrongArticle = reviewOf({ 'words-01': strong }).engine.answer('het hond');
+    const noArticle = reviewOf({ 'words-01': strong }).engine.answer('hond');
+    const wrong = reviewOf({ 'words-01': strong }).engine.answer('kat');
+
+    expect(wrongArticle).toMatchObject({ verdict: 'almost', correctAnswer: 'de hond' });
+    expect(noArticle).toMatchObject({ verdict: 'almost', correctAnswer: 'de hond' });
+    expect(wrong).toMatchObject({ verdict: 'wrong', correctAnswer: 'de hond' });
+    const due = (r: typeof wrong) => r.progress.cards['words-01'].due;
+    expect(due(wrongArticle)).toBe(due(wrong));
+    expect(due(noArticle)).toBe(due(wrong));
+    expect(wrongArticle.progress.cards['words-01'].lastCorrect).toBe(false);
+  });
+
+  it('an almost or wrong typed answer comes back before the review ends, as a choice again now that it is weaker', () => {
+    const { engine } = reviewOf({ 'words-01': strong, 'words-04': strong + 1 });
+
+    engine.answer('het hond');
+
+    expect(expectPrompt(engine).cardId).toBe('words-04');
+    engine.answer('de kat');
+    expect(expectPrompt(engine)).toMatchObject({ cardId: 'words-01', mode: 'recognise', dutch: 'de hond' });
+  });
+
+  it('a fast correct answer is graded Easy: the Card comes back later than after a slow one', () => {
+    const fast = reviewOf({ 'words-01': strong });
+    expectPrompt(fast.engine);
+    fast.clock.advance((FAST_RECALL_SECONDS - 1) * 1000);
+    const quick = fast.engine.answer('de hond');
+
+    const slow = reviewOf({ 'words-01': strong });
+    expectPrompt(slow.engine);
+    slow.clock.advance((FAST_RECALL_SECONDS + 1) * 1000);
+    const thoughtful = slow.engine.answer('de hond');
+
+    expect(quick.verdict).toBe('correct');
+    expect(thoughtful.verdict).toBe('correct');
+    expect(new Date(quick.progress.cards['words-01'].due).getTime()).toBeGreaterThan(new Date(thoughtful.progress.cards['words-01'].due).getTime());
   });
 });
