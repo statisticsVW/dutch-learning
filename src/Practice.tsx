@@ -18,7 +18,7 @@ type Props = {
 
 /** One group of new Cards, or a review: recognise, listen and typed prompts, feedback after each answer, then "more" or back. */
 export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }: Props) {
-  const [feedback, setFeedback] = useState<(AnswerResult & Pick<Prompt, 'mode' | 'dutch' | 'english' | 'notes'>) | undefined>();
+  const [feedback, setFeedback] = useState<(AnswerResult & Pick<Prompt, 'cardId' | 'mode' | 'dutch' | 'english' | 'notes'>) | undefined>();
   // Not asked for while feedback shows: the engine times a typed answer from when its prompt is first asked for.
   const next = feedback ? undefined : engine.nextPrompt();
 
@@ -42,7 +42,7 @@ export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }
           {feedbackMessage(feedback)}
         </p>
         {feedback.mode === 'recall' && feedback.notes?.cognate && <PromptNote notes={{ cognate: true }} />}
-        <AnswerNotes dutch={feedback.dutch} meaning={feedback.english} notes={feedback.notes} />
+        <AnswerNotes cardId={feedback.cardId} dutch={feedback.dutch} meaning={feedback.english} notes={feedback.notes} />
         <button
           class="primary"
           autofocus
@@ -76,7 +76,7 @@ export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }
   const respond = (response: string) => {
     const result = engine.answer(response);
     onAnswered(result);
-    setFeedback({ ...result, mode: next.mode, dutch: next.dutch, english: next.english, notes: next.notes });
+    setFeedback({ ...result, cardId: next.cardId, mode: next.mode, dutch: next.dutch, english: next.english, notes: next.notes });
   };
 
   return (

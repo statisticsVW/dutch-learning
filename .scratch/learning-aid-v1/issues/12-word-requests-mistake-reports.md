@@ -8,7 +8,7 @@ Spec: `.scratch/learning-aid-v1/spec.md`. Glossary: `CONTEXT.md`. Privacy rule: 
 
 **Status:** ready-for-agent
 
-- [ ] UI flow tests: Word request and Mistake report call the share adapter with the expected text (word / Card id included)
-- [ ] Falls back to copy-to-clipboard when sharing is unavailable
-- [ ] No email address, phone number or other contact detail anywhere in the repository
+- [x] UI flow tests: Word request and Mistake report call the share adapter with the expected text (word / Card id included)
+- [x] Falls back to copy-to-clipboard when sharing is unavailable
+- [x] No email address, phone number or other contact detail anywhere in the repository
 - [ ] Manually verified that the share sheet opens on iPhone
