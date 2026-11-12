@@ -311,7 +311,7 @@ describe('checkDictionary', () => {
     return result.errors;
   };
 
-  it('turns a valid Dictionary file into entries shaped like Cards', () => {
+  it('turns a valid Dictionary file into entries with the same fields as Cards', () => {
     const result = check(
       dictionary('{ id: dict-boek, dutch: boek, english: book, pos: noun, article: het }', '{ id: dict-ja, dutch: ja, english: yes, pos: interjection }'),
     );
@@ -331,15 +331,15 @@ describe('checkDictionary', () => {
     );
 
     expect(errors).toEqual([
-      `${DICTIONARY_PATH}, Card dict-boek: "boek" says de, but Wiktionary says het.`,
-      `${DICTIONARY_PATH}, Card dict-ja: "english" is missing (give one meaning, or a list of meanings).`,
+      `${DICTIONARY_PATH}, entry dict-boek: "boek" says de, but Wiktionary says het.`,
+      `${DICTIONARY_PATH}, entry dict-ja: "english" is missing (give one meaning, or a list of meanings).`,
     ]);
   });
 
   it('suggests a Dictionary-style id when one is missing', () => {
     const errors = errorsOfDictionary(check(dictionary('{ dutch: ja, english: yes, pos: interjection }')));
 
-    expect(errors).toEqual([`${DICTIONARY_PATH}, Card #1: "id" is missing (every Card needs a unique id, like dict-ja).`]);
+    expect(errors).toEqual([`${DICTIONARY_PATH}, entry #1: "id" is missing (every entry needs a unique id, like dict-ja).`]);
   });
 
   it('rejects ids used twice in the Dictionary or already used by a Pack Card', () => {
@@ -354,8 +354,8 @@ describe('checkDictionary', () => {
     );
 
     expect(errors).toEqual([
-      `${DICTIONARY_PATH}: Card id "dict-ja" is used more than once. Every Card id must be unique.`,
-      `${DICTIONARY_PATH}: Card id "hello-05" is already used by a Card in the Pack "hello". Every Card id must be unique.`,
+      `${DICTIONARY_PATH}: id "dict-ja" is used by more than one entry. Every entry id must be unique.`,
+      `${DICTIONARY_PATH}: id "hello-05" is already used by a Card in the Pack "hello". Give the entry a different id.`,
     ]);
   });
 
@@ -365,7 +365,7 @@ describe('checkDictionary', () => {
     );
 
     expect(errors).toEqual([
-      `${DICTIONARY_PATH}, Card dict-ja-2: "Ja" is already in the Dictionary as Card dict-ja. Remove one of them, or put both meanings in one Card.`,
+      `${DICTIONARY_PATH}, entry dict-ja-2: "Ja" is already in the Dictionary as entry dict-ja. Remove one of them, or put both meanings in one entry.`,
     ]);
   });
 

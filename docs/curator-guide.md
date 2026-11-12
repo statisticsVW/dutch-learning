@@ -62,7 +62,7 @@ Fix the Card it names, commit again, and the check reruns. What the common messa
 | `Card id "…" is used more than once`              | Give the newer Card a fresh id. Don't change the id of a Card that has been live for a while. |
 | `another Pack file … has the same name`           | Two files differ only by `.yaml`/`.yml`: rename or merge them.                                 |
 | `the name "mijn-woorden" is kept`                  | That name belongs to the Learner's own Pack. Rename your file.                                 |
-| `is already used by a Card in the Pack …`         | A Dictionary entry has the same id as a Pack Card: give the Dictionary entry a fresh id.       |
+| `is already used by a Card in the Pack …`         | A Dictionary entry has the same id as a Pack Card: give the entry a fresh id.                  |
 
 ## The Dictionary
 

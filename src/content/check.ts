@@ -1,7 +1,7 @@
 // The content check: turns the Curator's Pack files into validated content,
 // or into a plain-language list of what needs fixing. Runs at build time.
 import { parse } from 'yaml';
-import { ARTICLES, PARTS_OF_SPEECH, type Article, type Card, type DictionaryEntry, type Pack, type PartOfSpeech } from './types.ts';
+import { ARTICLES, PARTS_OF_SPEECH, type Article, type Card, type DictionaryEntry, type Pack, type PartOfSpeech, MY_WORDS_PACK_ID } from './types.ts';
 
 export type PackFile = { path: string; text: string };
 
@@ -61,16 +61,16 @@ export function checkDictionary(file: PackFile, wiktionary: ArticleSnapshot, pac
   const entries: DictionaryEntry[] = [];
   rawEntries.forEach((raw, index) => {
     const example = isRecord(raw) && isText(raw.dutch) ? `dict-${slugOf(raw.dutch)}` : 'dict-woord';
-    const entry = checkCard(raw, index, file.path, example, wiktionary, errors);
+    const entry = checkCard(raw, index, file.path, { noun: 'entry', idExample: example }, wiktionary, errors);
     if (entry) entries.push(entry);
   });
-  checkNoDuplicateCards(entries, file.path, 'the Dictionary', errors);
+  checkNoDuplicateCards(entries, file.path, { noun: 'entry', place: 'the Dictionary' }, errors);
 
   const packOf = new Map(packs.flatMap((p) => p.cards.map((c) => [c.id, p.id] as const)));
   const seen = new Set<string>();
   for (const { id } of entries) {
-    if (seen.has(id)) errors.push(`${file.path}: Card id "${id}" is used more than once. Every Card id must be unique.`);
-    else if (packOf.has(id)) errors.push(`${file.path}: Card id "${id}" is already used by a Card in the Pack "${packOf.get(id)}". Every Card id must be unique.`);
+    if (seen.has(id)) errors.push(`${file.path}: id "${id}" is used by more than one entry. Every entry id must be unique.`);
+    else if (packOf.has(id)) errors.push(`${file.path}: id "${id}" is already used by a Card in the Pack "${packOf.get(id)}". Give the entry a different id.`);
     seen.add(id);
   }
 
@@ -108,20 +108,23 @@ function checkPackFile(file: PackFile, wiktionary: ArticleSnapshot, errors: stri
     fileError('the Pack needs a "cards" list with at least one Card.');
   } else {
     rawCards.forEach((raw, index) => {
-      const card = checkCard(raw, index, file.path, `${packIdFromPath(file.path)}-${String(index + 1).padStart(2, '0')}`, wiktionary, errors);
+      const idExample = `${packIdFromPath(file.path)}-${String(index + 1).padStart(2, '0')}`;
+      const card = checkCard(raw, index, file.path, { noun: 'Card', idExample }, wiktionary, errors);
       if (card) cards.push(card);
     });
   }
 
-  checkNoDuplicateCards(cards, file.path, 'this Pack', errors);
+  checkNoDuplicateCards(cards, file.path, { noun: 'Card', place: 'this Pack' }, errors);
 
   if (errors.length > before) return undefined;
   return { id: packIdFromPath(file.path), title: title as string, cards };
 }
 
-/** `idExample` is the id suggested when one is missing. */
-function checkCard(raw: unknown, index: number, path: string, idExample: string, wiktionary: ArticleSnapshot, errors: string[]): Card | undefined {
-  const label = isRecord(raw) && isText(raw.id) ? `Card ${raw.id}` : `Card #${index + 1}`;
+/** How errors name what is checked: a Pack's Card, or a Dictionary entry (not a Card until the Learner adds it). */
+type Naming = { noun: 'Card' | 'entry'; /** Suggested when the id is missing. */ idExample: string };
+
+function checkCard(raw: unknown, index: number, path: string, { noun, idExample }: Naming, wiktionary: ArticleSnapshot, errors: string[]): Card | undefined {
+  const label = isRecord(raw) && isText(raw.id) ? `${noun} ${raw.id}` : `${noun} #${index + 1}`;
   const cardError = (message: string) => errors.push(`${path}, ${label}: ${message}`);
   if (!isRecord(raw)) {
     cardError('each Card should be a set of fields like "id:", "dutch:", "english:" and "pos:".');
@@ -130,7 +133,7 @@ function checkCard(raw: unknown, index: number, path: string, idExample: string,
 
   const before = errors.length;
   const { id, dutch, pos, article } = raw;
-  if (!isText(id)) cardError(`"id" is missing (every Card needs a unique id, like ${idExample}).`);
+  if (!isText(id)) cardError(`"id" is missing (every ${noun} needs a unique id, like ${idExample}).`);
   if (!isText(dutch)) cardError('"dutch" is missing (it should be the Dutch word or phrase).');
 
   const english = typeof raw.english === 'string' ? [raw.english] : raw.english;
@@ -224,18 +227,15 @@ function isArticleList(entry: ArticleSnapshot[string]): entry is readonly Articl
   return Array.isArray(entry);
 }
 
-/** The Learner's own Pack (see src/dictionary/my-words.ts); a Pack file may not take its id. */
-const MY_WORDS_PACK_ID = 'mijn-woorden';
-
 /** The same word (and article) twice in one Pack, or in the Dictionary, is a duplicate; across Packs it is fine. */
-function checkNoDuplicateCards(cards: Card[], path: string, place: string, errors: string[]) {
+function checkNoDuplicateCards(cards: Card[], path: string, { noun, place }: { noun: Naming['noun']; place: string }, errors: string[]) {
   const firstCard = new Map<string, Card>();
   for (const card of cards) {
     const key = [card.dutch.toLowerCase(), card.pos, card.article ?? ''].join('|');
     const first = firstCard.get(key);
     if (first) {
       errors.push(
-        `${path}, Card ${card.id}: "${card.dutch}" is already in ${place} as Card ${first.id}. Remove one of them, or put both meanings in one Card.`,
+        `${path}, ${noun} ${card.id}: "${card.dutch}" is already in ${place} as ${noun} ${first.id}. Remove one of them, or put both meanings in one ${noun}.`,
       );
     } else firstCard.set(key, card);
   }

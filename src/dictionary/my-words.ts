@@ -1,9 +1,8 @@
 // Mijn woorden: the Learner's own Pack, made of the Dictionary entries he added.
 // Pure: the list is kept on the device by the Mijn woorden store.
-import type { Card, DictionaryEntry, Pack } from '../content/types';
+import { MY_WORDS_PACK_ID, type DictionaryEntry, type Pack } from '../content/types';
 
-export const MY_WORDS_PACK_ID = 'mijn-woorden';
-export const MY_WORDS_TITLE = 'Mijn woorden';
+export { MY_WORDS_PACK_ID };
 
 /** Adds an entry at the end; adding a word that is already there changes nothing. */
 export function addWord(words: DictionaryEntry[], entry: DictionaryEntry): DictionaryEntry[] {
@@ -31,8 +30,7 @@ export function refreshWords(words: DictionaryEntry[], dictionary: readonly Dict
  */
 export function withMyWords(packs: Pack[], words: DictionaryEntry[]): Pack[] {
   if (words.length === 0) return packs;
-  const cards: Card[] = words.map((w) => ({ ...w }));
-  return [...packs, { id: MY_WORDS_PACK_ID, title: MY_WORDS_TITLE, cards }];
+  return [...packs, { id: MY_WORDS_PACK_ID, title: 'Mijn woorden', cards: words }];
 }
 
 /** The Dutch as shown to the Learner: nouns always carry their article. */

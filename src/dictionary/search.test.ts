@@ -16,6 +16,7 @@ const dictionary: DictionaryEntry[] = [
   entry('één', 'one', { pos: 'numeral', article: undefined }),
   entry('eten', 'to eat', { pos: 'verb', article: undefined }),
   entry('dank je', ['thank you', 'thanks'], { pos: 'phrase', article: undefined }),
+  entry('een beetje', 'a little', { pos: 'phrase', article: undefined }),
 ];
 
 const dutchOf = (query: string) => searchDictionary(dictionary, query).map((e) => e.dutch);
@@ -29,7 +30,7 @@ describe('searchDictionary', () => {
   it('ignores capitals, accents and spaces around the query', () => {
     expect(dutchOf('  CAFE ')).toEqual(['café']);
     expect(dutchOf('reunie')).toEqual(['reünie']);
-    expect(dutchOf('een')).toEqual(['één']);
+    expect(dutchOf('één')[0]).toBe('één');
   });
 
   it('understands queries written with an article or "to"', () => {
@@ -43,6 +44,12 @@ describe('searchDictionary', () => {
   it('ranks exact matches first, then words starting with the query, then words containing it', () => {
     expect(dutchOf('boek')).toEqual(['boek', 'boekenkast', 'kookboek']);
     expect(dutchOf('book')).toEqual(['boek', 'boekenkast', 'kookboek']);
+  });
+
+  it('keeps a Dutch phrase whole, so its first word still finds it', () => {
+    expect(dutchOf('een beetje')).toEqual(['een beetje']);
+    expect(dutchOf('een')).toEqual(['één', 'een beetje']);
+    expect(dutchOf('a little')).toEqual(['een beetje']);
   });
 
   it('matches the start of any word in a phrase', () => {
