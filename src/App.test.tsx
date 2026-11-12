@@ -15,7 +15,7 @@ const animals: Pack = {
     ['vis', 'fish'],
     ['vogel', 'bird'],
     ['koe', 'cow'],
-  ].map(([dutch, english, article = 'de'], i) => ({ id: `animals-0${i + 1}`, dutch, english: [english], pos: 'noun', article })),
+  ].map(([dutch, english, article = 'de'], i) => ({ id: `animals-0${i + 1}`, dutch, english: [english], pos: 'noun', article: article as 'de' | 'het' })),
 };
 const meaningOf = (shown: string) => animals.cards.find((c) => `${c.article} ${c.dutch}` === shown)!.english[0];
 

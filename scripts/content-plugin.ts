@@ -1,7 +1,7 @@
 import { resolve } from 'node:path';
 import type { Plugin } from 'vite';
 import { checkContent, formatErrors } from '../src/content/check.ts';
-import { PACKS_DIR, readPackFiles } from './read-pack-files.ts';
+import { PACKS_DIR, SNAPSHOT_PATH, readArticleSnapshot, readPackFiles } from './read-content.ts';
 
 const VIRTUAL_ID = 'virtual:packs';
 const RESOLVED_ID = '\0' + VIRTUAL_ID;
@@ -21,11 +21,13 @@ export function contentPlugin(): Plugin {
       return id === VIRTUAL_ID ? RESOLVED_ID : undefined;
     },
     configureServer(server) {
-      // In dev, re-run the check and reload the page whenever a Pack file is added, edited or removed.
+      // In dev, re-run the check and reload the page whenever a Pack file or the article snapshot changes.
       const packsDir = resolve(root, PACKS_DIR);
-      server.watcher.add(packsDir);
+      const snapshot = resolve(root, SNAPSHOT_PATH);
+      server.watcher.add([packsDir, snapshot]);
       const onChange = (file: string) => {
-        if (!resolve(file).startsWith(packsDir)) return;
+        const changed = resolve(file);
+        if (!changed.startsWith(packsDir) && changed !== snapshot) return;
         const mod = server.moduleGraph.getModuleById(RESOLVED_ID);
         if (mod) server.moduleGraph.invalidateModule(mod);
         server.ws.send({ type: 'full-reload' });
@@ -34,7 +36,7 @@ export function contentPlugin(): Plugin {
     },
     load(id) {
       if (id !== RESOLVED_ID) return undefined;
-      const result = checkContent(readPackFiles(root));
+      const result = checkContent(readPackFiles(root), readArticleSnapshot(root));
       if (!result.ok) {
         this.error(formatErrors(result.errors));
       }

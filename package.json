@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "check:content": "tsx scripts/check-content.ts"
+    "check:content": "tsx scripts/check-content.ts",
+    "snapshot:wiktionary": "tsx scripts/build-article-snapshot.ts"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.6",

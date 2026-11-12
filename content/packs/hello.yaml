@@ -1,6 +1,6 @@
 # Pack: Hello & being polite
 # Each Card needs: id (unique, never reuse or change it), dutch, english, pos.
-# Nouns also get an article: de or het.
+# Nouns also get an article: de or het. How-to: docs/curator-guide.md
 title: Hello & being polite
 cards:
   - id: hello-01
