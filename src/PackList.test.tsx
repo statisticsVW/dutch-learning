@@ -12,9 +12,16 @@ describe('PackList', () => {
     render(<PackList packs={packs} onPick={() => {}} />);
 
     const items = within(screen.getByRole('list', { name: 'Packs' })).getAllByRole('button');
-    expect(items.map((b) => b.textContent)).toEqual(['Hello & being polite', 'Food']);
+    expect(items.map((b) => b.querySelector('.pack-title')?.textContent)).toEqual(['Hello & being polite', 'Food']);
     expect(screen.getByRole('img', { name: '2 of 5 learned' })).toBeTruthy();
     expect(screen.getByRole('img', { name: '0 of 12 learned' })).toBeTruthy();
+  });
+
+  it('shows the count beside each ring, so progress can be read at a glance', () => {
+    render(<PackList packs={packs} onPick={() => {}} />);
+
+    expect(screen.getByText('2/5')).toBeTruthy();
+    expect(screen.getByText('0/12')).toBeTruthy();
   });
 
   it('picks a Pack', () => {

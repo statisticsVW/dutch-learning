@@ -5,6 +5,7 @@ import { DEFAULT_THEME, THEMES, type ThemeId } from './themes';
 import { BackupSection, type BackupDeps } from '../backup/BackupSection';
 import type { Backup } from '../backup/backup';
 import { About } from '../about/About';
+import { HomeRequests } from '../home';
 
 const FALLBACK_NAME = 'Dutch';
 const MAX_NAME_LENGTH = 30;
@@ -44,6 +45,13 @@ export function PersonaliseGate({ store, backup, children }: { store: Personalis
     setJustRestored(false);
     setScreen('settings');
   };
+  /** Taps on the header's Home button; the app below goes back to its home screen on each one. */
+  const [homeRequests, setHomeRequests] = useState(0);
+  const goHome = () => {
+    setJustRestored(false);
+    setScreen('app');
+    setHomeRequests((n) => n + 1);
+  };
 
   if (!chosen) {
     return (
@@ -59,11 +67,16 @@ export function PersonaliseGate({ store, backup, children }: { store: Personalis
     <>
       <header class="app-header">
         <h1>{chosen.name}</h1>
-        {!inSettings && (
-          <button type="button" class="quiet" onClick={openSettings}>
-            Settings
+        <nav class="app-nav" aria-label="App">
+          <button type="button" class="quiet" onClick={goHome}>
+            Home
           </button>
-        )}
+          {!inSettings && (
+            <button type="button" class="quiet" onClick={openSettings}>
+              Settings
+            </button>
+          )}
+        </nav>
       </header>
       {screen === 'about' && <About onBack={() => setScreen('settings')} />}
       {screen === 'settings' && (
@@ -83,7 +96,7 @@ export function PersonaliseGate({ store, backup, children }: { store: Personalis
       )}
       {/* Kept mounted while in settings, so a Burst in progress carries on afterwards. Loading a backup restarts it. */}
       <div hidden={inSettings} key={restores}>
-        {children}
+        <HomeRequests.Provider value={homeRequests}>{children}</HomeRequests.Provider>
       </div>
     </>
   );

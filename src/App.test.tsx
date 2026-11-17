@@ -185,6 +185,28 @@ describe('listening', () => {
     return first;
   }
 
+  const silentHint = /No sound\? Check your iPhone isn’t on silent/;
+
+  it('after tapping 🔊, a quiet hint says that silent mode mutes the voice', async () => {
+    renderWithSpeech(true);
+    await act(async () => {});
+    fireEvent.click(screen.getByRole('button', { name: /Animals/ }));
+    expect(screen.queryByText(silentHint)).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Hear it in Dutch' }));
+
+    expect(screen.getByText(silentHint)).toBeTruthy();
+  });
+
+  it('a listening question, which plays by itself, shows the silent-mode hint straight away', async () => {
+    renderWithSpeech(true);
+    await act(async () => {});
+    slipOnceThenAnswerFour();
+
+    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Listen: what does it mean?');
+    expect(screen.getByText(silentHint)).toBeTruthy();
+  });
+
   it('without a Dutch voice: a quiet note, and every prompt is written', async () => {
     renderWithSpeech(false);
 
@@ -192,6 +214,7 @@ describe('listening', () => {
     slipOnceThenAnswerFour();
     expect(shownDutch()).toBe('de hond');
     expect(screen.queryByRole('button', { name: /Hear it/ })).toBeNull();
+    expect(screen.queryByText(silentHint)).toBeNull();
   });
 
   it('with a Dutch voice: any Card can be heard, and the tap that starts practice unlocks speech', async () => {

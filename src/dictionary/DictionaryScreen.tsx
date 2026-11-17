@@ -4,6 +4,7 @@ import { addWord, dutchWithArticle, refreshWords, removeWord } from './my-words'
 import { searchDictionary } from './search';
 import { wordRequest } from '../adapters/share';
 import { ShareButton } from '../ShareButton';
+import type { Speak } from '../adapters/speech';
 
 type Props = {
   /** Fetches the Dictionary; it is a separate file, loaded only when this screen opens. */
@@ -11,12 +12,14 @@ type Props = {
   words: DictionaryEntry[];
   onChange: (words: DictionaryEntry[]) => void;
   onBack: () => void;
+  /** Speaks Dutch; undefined when the device has no Dutch voice. */
+  speak?: Speak;
 };
 
 type Loaded = { status: 'loading' } | { status: 'failed' } | { status: 'ready'; entries: DictionaryEntry[] };
 
 /** Search the Dictionary by English or Dutch, add words to Mijn woorden, and tidy Mijn woorden up. */
-export function DictionaryScreen({ load, words, onChange, onBack }: Props) {
+export function DictionaryScreen({ load, words, onChange, onBack, speak }: Props) {
   const [dictionary, setDictionary] = useState<Loaded>({ status: 'loading' });
   const [query, setQuery] = useState('');
 
@@ -61,7 +64,7 @@ export function DictionaryScreen({ load, words, onChange, onBack }: Props) {
               <ul class="word-list" aria-label="Results">
                 {results.map((entry) => (
                   <li key={entry.id}>
-                    <Word entry={entry} />
+                    <Word entry={entry} speak={speak} />
                     {added.has(entry.id) ? (
                       <span class="muted">In Mijn woorden</span>
                     ) : (
@@ -87,7 +90,7 @@ export function DictionaryScreen({ load, words, onChange, onBack }: Props) {
         <ul class="word-list" aria-label="Mijn woorden">
           {words.map((entry) => (
             <li key={entry.id}>
-              <Word entry={entry} />
+              <Word entry={entry} speak={speak} />
               <button class="quiet" aria-label={`Remove ${dutchWithArticle(entry)} from Mijn woorden`} onClick={() => onChange(removeWord(words, entry.id))}>
                 Remove
               </button>
@@ -101,11 +104,17 @@ export function DictionaryScreen({ load, words, onChange, onBack }: Props) {
   );
 }
 
-function Word({ entry }: { entry: DictionaryEntry }) {
+function Word({ entry, speak }: { entry: DictionaryEntry; speak?: Speak }) {
+  const dutch = dutchWithArticle(entry);
   return (
     <span class="word">
       <span class="word-dutch" lang="nl">
-        {dutchWithArticle(entry)}
+        {dutch}
+        {speak && (
+          <button class="hear hear-small" aria-label={`Hear ${dutch} in Dutch`} onClick={() => speak(dutch)}>
+            <span aria-hidden="true">🔊</span>
+          </button>
+        )}
       </span>
       <span class="word-english">{entry.english.join(', ')}</span>
     </span>

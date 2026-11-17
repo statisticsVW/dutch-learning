@@ -11,6 +11,7 @@ import { PackList } from './PackList';
 import { Practice, type Activity } from './Practice';
 import { DictionaryScreen } from './dictionary/DictionaryScreen';
 import { withMyWords } from './dictionary/my-words';
+import { useHomeRequests } from './home';
 
 /** The Dictionary (loaded lazily) and the Learner's Mijn woorden. */
 export type DictionaryDeps = { load: () => Promise<DictionaryEntry[]>; myWords: MyWordsStore };
@@ -48,6 +49,11 @@ function Screens({ packs, store, clock, random, dictionary, speech }: Props) {
     setWelcomeDismissed(false);
     setBurst((n) => n + 1);
   });
+  // The header's Home button: back to the Packs from practice or the Dictionary. Every answer is already saved.
+  useHomeRequests(() => {
+    setActivity(undefined);
+    setShowDictionary(false);
+  });
 
   const begin = (next: Activity) => {
     audio.unlock(); // this is a tap, so iOS lets speech start here
@@ -83,7 +89,7 @@ function Screens({ packs, store, clock, random, dictionary, speech }: Props) {
   if (dictionary && showDictionary) {
     return (
       <main>
-        <DictionaryScreen load={dictionary.load} words={myWords} onChange={changeMyWords} onBack={() => setShowDictionary(false)} />
+        <DictionaryScreen load={dictionary.load} words={myWords} onChange={changeMyWords} onBack={() => setShowDictionary(false)} speak={audio.speak} />
       </main>
     );
   }
