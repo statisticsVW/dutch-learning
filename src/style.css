@@ -544,3 +544,15 @@ button.quiet {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
+/* A new version is ready: a quiet bar at the top, like the install reminder. */
+.update-note {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 0.25rem 1rem;
+}
+.update-note button {
+  width: 100%;
+  font-size: 0.875rem;
+  min-height: 44px;
+  border: 2px solid var(--accent);
+}
