@@ -12,4 +12,4 @@ Spec: `.scratch/learning-aid-v1/spec.md`.
 - [x] Error messages are plain language and point to the exact Card
 - [x] A repeatable way to (re)build the Wiktionary article snapshot, with its licence noted
 - [x] Curator how-to written in the repository
-- [ ] Verified that a deliberately wrong article in a pushed change fails the Action and does not deploy
+- [x] Verified that a deliberately wrong article in a pushed change fails the Action and does not deploy
