@@ -562,3 +562,9 @@ button.quiet {
   text-align: center;
   margin: -0.5rem 0 0;
 }
+/* Home and Settings sit together at the right of the header, on every screen. */
+.app-nav {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
