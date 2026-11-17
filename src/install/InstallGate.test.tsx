@@ -21,10 +21,34 @@ describe('InstallGate', () => {
     renderApp(fakeInstallStatus({ installed: false }));
 
     expect(installScreen()).not.toBeNull();
-    expect(screen.getByText(/share/i)).not.toBeNull();
-    expect(screen.getByText(/add to home screen/i)).not.toBeNull();
-    expect(screen.getByText(/so your progress doesn.t vanish/i)).not.toBeNull();
+    expect(screen.getAllByText(/share/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/add to home screen/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/your progress doesn.t vanish/i)).not.toBeNull();
     expect(screen.queryByText('The app')).toBeNull();
+  });
+
+  it('walks through every step, including newer Safari hiding Share behind ⋯, tapping Add, and finding the icon', () => {
+    renderApp(fakeInstallStatus({ installed: false }));
+
+    const steps = screen.getAllByRole('listitem').map((li) => li.textContent ?? '');
+    expect(steps).toHaveLength(4);
+    expect(steps[0]).toMatch(/Share/);
+    expect(steps[0]).toMatch(/⋯/);
+    expect(steps[1]).toMatch(/Add to Home Screen/);
+    expect(steps[2]).toMatch(/Add/);
+    expect(steps[3]).toMatch(/Dutch.*icon/);
+    expect(screen.getByText(/open this page in Safari/i)).not.toBeNull();
+  });
+
+  it('the reminder can bring the steps back at any time', () => {
+    renderApp(fakeInstallStatus({ installed: false }));
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+    fireEvent.click(screen.getByRole('button', { name: /show me how/i }));
+
+    expect(installScreen()).not.toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+    expect(screen.getByText('The app')).not.toBeNull();
   });
 
   it('lets the Learner continue in the tab, then shows the app with a reminder', () => {
