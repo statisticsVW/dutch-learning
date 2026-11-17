@@ -34,10 +34,22 @@ export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }
     if (next) playIfListening(next);
   });
 
+  // iOS mutes web speech while the side switch is on silent, and a web page can't tell. So once the
+  // Learner has asked to hear something, a quiet hint says why there might be no sound.
+  const [triedToHear, setTriedToHear] = useState(false);
+  const say: Speak | undefined =
+    speak &&
+    ((dutch) => {
+      speak(dutch);
+      setTriedToHear(true);
+    });
+  const silentHint = speak && (triedToHear || next?.kind === 'prompt' && next.mode === 'listen') && <SilentModeHint />;
+
   if (feedback) {
     return (
       <section class="practice">
-        <DutchHeading dutch={feedback.dutch} speak={speak} />
+        <DutchHeading dutch={feedback.dutch} speak={say} />
+        {silentHint}
         <p class={`feedback ${feedback.verdict}`} role="status">
           {feedbackMessage(feedback)}
         </p>
@@ -86,13 +98,14 @@ export function Practice({ engine, activity, speak, onAnswered, onMore, onDone }
       ) : next.mode === 'listen' ? (
         <>
           <h2 class="prompt-listen">Listen: what does it mean?</h2>
-          <button class="play" onClick={() => speak?.(next.dutch)}>
+          <button class="play" onClick={() => say?.(next.dutch)}>
             <span aria-hidden="true">🔊</span> Play again
           </button>
         </>
       ) : (
-        <DutchHeading dutch={next.dutch} speak={speak} />
+        <DutchHeading dutch={next.dutch} speak={say} />
       )}
+      {silentHint}
       {/* Before a typed answer, a Cognate or False-friend note would give it away; it shows with the feedback instead. */}
       {next.mode !== 'recall' && <PromptNote notes={next.notes} />}
       {next.options.length > 0 && (
@@ -167,6 +180,10 @@ function DutchHeading({ dutch, speak }: { dutch: string; speak?: Speak }) {
       )}
     </div>
   );
+}
+
+function SilentModeHint() {
+  return <p class="silent-hint">No sound? Check your iPhone isn’t on silent.</p>;
 }
 
 function doneMessage(activity: Activity, canDoMore: boolean): string {
