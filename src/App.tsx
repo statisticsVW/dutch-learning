@@ -89,7 +89,7 @@ function Screens({ packs, store, clock, random, dictionary, speech }: Props) {
   if (dictionary && showDictionary) {
     return (
       <main>
-        <DictionaryScreen load={dictionary.load} words={myWords} onChange={changeMyWords} onBack={() => setShowDictionary(false)} />
+        <DictionaryScreen load={dictionary.load} words={myWords} onChange={changeMyWords} onBack={() => setShowDictionary(false)} speak={audio.speak} />
       </main>
     );
   }

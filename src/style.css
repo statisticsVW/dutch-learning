@@ -568,3 +568,36 @@ button.quiet {
   gap: 0.25rem;
   flex-shrink: 0;
 }
+.pack-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+.pack-count {
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+.hear-small {
+  min-height: 32px;
+  min-width: 32px;
+  padding: 0.25rem;
+  margin-left: 0.375rem;
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+/* iPhone touch polish: a quick double tap on an answer shouldn't zoom the page, and taps
+   shouldn't flash grey. People who turn off motion in iOS settings get a still progress ring. */
+button,
+input,
+label {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ring-fill {
+    transition: none;
+  }
+}

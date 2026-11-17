@@ -6,6 +6,8 @@ import { createMemoryProgressStore } from '../adapters/progress-store';
 import { createMemoryMyWordsStore } from '../adapters/my-words-store';
 import { createFakeClock } from '../adapters/clock';
 import { createFakeShare, wordRequest } from '../adapters/share';
+import { createFakeSpeech } from '../adapters/speech';
+import { act } from '@testing-library/preact';
 
 const hello: Pack = {
   id: 'hello',
@@ -36,6 +38,40 @@ async function openDictionaryAndSearch(query: string) {
   const box = await screen.findByRole('searchbox', { name: 'Search in English or Dutch' });
   fireEvent.input(box, { target: { value: query } });
 }
+
+describe('hearing Dictionary words', () => {
+  async function renderWithSpeech(available: boolean) {
+    const speech = createFakeSpeech(available);
+    render(
+      <App
+        packs={[hello]}
+        store={createMemoryProgressStore()}
+        clock={createFakeClock(new Date('2026-01-01T10:00:00Z'))}
+        dictionary={{ load: () => Promise.resolve(dictionary), myWords: createMemoryMyWordsStore([dictionary[1]]) }}
+        speech={speech}
+      />,
+    );
+    await act(async () => {});
+    return speech;
+  }
+
+  it('with a Dutch voice, any result or word in Mijn woorden can be heard, with its article', async () => {
+    const speech = await renderWithSpeech(true);
+    await openDictionaryAndSearch('book');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Hear het boek in Dutch' }));
+    fireEvent.click(within(screen.getByRole('list', { name: 'Mijn woorden' })).getByRole('button', { name: 'Hear de hond in Dutch' }));
+
+    expect(speech.spoken).toEqual(['het boek', 'de hond']);
+  });
+
+  it('without a Dutch voice, there are no 🔊 buttons', async () => {
+    await renderWithSpeech(false);
+    await openDictionaryAndSearch('book');
+
+    expect(screen.queryByRole('button', { name: /^Hear / })).toBeNull();
+  });
+});
 
 describe('Dictionary and Mijn woorden', () => {
   it('searches, adds a word, then practises it in Mijn woorden', async () => {
