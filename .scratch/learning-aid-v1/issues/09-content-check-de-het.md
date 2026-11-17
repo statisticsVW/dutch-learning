@@ -8,8 +8,8 @@ Spec: `.scratch/learning-aid-v1/spec.md`.
 
 **Status:** ready-for-agent
 
-- [ ] Content-check tests with fixture Pack files and a fixture Wiktionary snapshot cover each rule
-- [ ] Error messages are plain language and point to the exact Card
-- [ ] A repeatable way to (re)build the Wiktionary article snapshot, with its licence noted
-- [ ] Curator how-to written in the repository
+- [x] Content-check tests with fixture Pack files and a fixture Wiktionary snapshot cover each rule
+- [x] Error messages are plain language and point to the exact Card
+- [x] A repeatable way to (re)build the Wiktionary article snapshot, with its licence noted
+- [x] Curator how-to written in the repository
 - [ ] Verified that a deliberately wrong article in a pushed change fails the Action and does not deploy

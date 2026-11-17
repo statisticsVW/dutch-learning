@@ -16,4 +16,4 @@ This ticket establishes the learning engine as a pure module with a small interf
 - [x] Engine tests cover Pack progress and "words you know" totals
 - [x] Stopping mid-Burst loses nothing (progress persisted after each answer)
 - [x] UI flow test: pick a Pack, answer a group of 5, see the progress ring move
-- [ ] Works on the live URL on an iPhone
+- [x] Works on the live URL on an iPhone

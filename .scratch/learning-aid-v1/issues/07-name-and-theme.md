@@ -11,7 +11,7 @@ Spec: `.scratch/learning-aid-v1/spec.md`. Privacy rule: CLAUDE.md.
 - [x] UI flow test: first launch asks for name and theme, then never again
 - [x] UI flow test: changing name/theme in settings updates the app
 - [x] Choices persist across reloads via the progress-store adapter
-- [ ] Every theme is readable (sufficient contrast) on a phone. Contrast is checked automatically (WCAG AA, `src/personalise/themes.test.ts` against the real stylesheet); looking at each theme on a real iPhone is still to do.
+- [x] Every theme is readable (sufficient contrast) on a phone. Contrast is checked automatically (WCAG AA, `src/personalise/themes.test.ts` against the real stylesheet); each theme was also checked on a real iPhone.
 
 **Notes from implementation:**
 
